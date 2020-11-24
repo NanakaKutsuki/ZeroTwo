@@ -1,5 +1,6 @@
 package org.kutsuki.zerotwo;
 
+import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.URL;
@@ -23,8 +24,8 @@ public class ZeroTwoApplication {
     private static final String TITLE = "Zero Two";
 
     public static void main(String[] args) {
-	ConfigurableApplicationContext ctx = new SpringApplicationBuilder(ZeroTwoApplication.class)
-		.headless(false).run(args);
+	ConfigurableApplicationContext ctx = new SpringApplicationBuilder(ZeroTwoApplication.class).headless(false)
+		.run(args);
 
 	URL url = ZeroTwoApplication.class.getResource(GIF);
 	Icon icon = new ImageIcon(url);
@@ -32,6 +33,7 @@ public class ZeroTwoApplication {
 
 	JFrame f = new JFrame(TITLE);
 	f.getContentPane().add(label);
+	f.getContentPane().setBackground(Color.BLACK);
 	f.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 	f.pack();
 	f.setLocationRelativeTo(null);
