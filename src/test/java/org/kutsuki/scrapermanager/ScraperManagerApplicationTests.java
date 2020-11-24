@@ -1,5 +1,6 @@
 package org.kutsuki.scrapermanager;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.kutsuki.scrapermanager.repository.PortfolioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,6 @@ public class ScraperManagerApplicationTests {
 
     @Test
     void contextLoads() {
-	System.out.println(repository.findAll());
+	Assertions.assertTrue(repository.count() > 0, "Should be stuff in the database");
     }
 }
