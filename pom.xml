@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>org.kutsuki</groupId>
-	<artifactId>zerotwo</artifactId>
+	<artifactId>ZeroTwo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>zerotwo</name>
+	<name>ZeroTwo</name>
 	<description>Scraper Manager utilizing Spring Boot</description>
 
 	<properties>
