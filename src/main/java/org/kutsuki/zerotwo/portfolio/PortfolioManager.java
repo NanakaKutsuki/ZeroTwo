@@ -173,7 +173,7 @@ public class PortfolioManager {
 	    // email alert
 	    service.email(emailPortfolio, subject.toString(), body.toString());
 
-	    // update portfolio
+	    // update portfolio repository
 	    if (!deleteList.isEmpty()) {
 		repository.deleteAll(deleteList);
 	    }

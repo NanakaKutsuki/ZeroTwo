@@ -6,7 +6,6 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.EmailService;
 import org.kutsuki.zerotwo.document.Alert;
 import org.kutsuki.zerotwo.portfolio.PortfolioManager;
@@ -28,17 +27,16 @@ public class PortfolioRest {
     @Autowired
     private PortfolioManager manager;
 
-    private Alert lastAlert;
+    private Alert alert;
 
     @PostConstruct
     public void postConstruct() {
-	this.lastAlert = new Alert();
 	reloadCache();
     }
 
-    @GetMapping("/rest/portfolio/getLastAlertId")
-    public String getLastAlertId() {
-	return lastAlert.getAlertId();
+    @GetMapping("/rest/portfolio/getAlertId")
+    public Integer getAlertId() {
+	return alert.getAlertId();
     }
 
     @GetMapping("/rest/portfolio/getSymbols")
@@ -49,7 +47,7 @@ public class PortfolioRest {
     @GetMapping("/rest/portfolio/reloadCache")
     public ResponseEntity<String> reloadCache() {
 	if (alertRepository.count() > 0) {
-	    this.lastAlert = alertRepository.findAll().get(0);
+	    this.alert = alertRepository.findAll().get(0);
 	}
 
 	manager.reloadCache();
@@ -59,9 +57,9 @@ public class PortfolioRest {
     }
 
     @GetMapping("/rest/portfolio/updateAlertId")
-    public ResponseEntity<String> updateAlertId(@RequestParam("id") String id) {
-	lastAlert.setAlertId(id);
-	alertRepository.save(lastAlert);
+    public ResponseEntity<String> updateAlertId(@RequestParam("id") Integer id) {
+	alert.setAlertId(id);
+	alertRepository.save(alert);
 	return ResponseEntity.ok().build();
     }
 
@@ -71,8 +69,8 @@ public class PortfolioRest {
     }
 
     @GetMapping("/rest/portfolio/uploadAlert")
-    public ResponseEntity<String> uploadAlert(@RequestParam("id") String id, @RequestParam("alert") String uriAlert) {
-	if (!StringUtils.equalsIgnoreCase(id, lastAlert.getAlertId())) {
+    public ResponseEntity<String> uploadAlert(@RequestParam("id") Integer id, @RequestParam("alert") String uriAlert) {
+	if (id != alert.getAlertId()) {
 	    try {
 		// decode URI Alert
 		String escaped = URLDecoder.decode(uriAlert, StandardCharsets.UTF_8.toString());
