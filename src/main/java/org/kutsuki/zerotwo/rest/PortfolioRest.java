@@ -2,7 +2,7 @@ package org.kutsuki.zerotwo.rest;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -41,6 +41,11 @@ public class PortfolioRest {
 	return lastAlert.getAlertId();
     }
 
+    @GetMapping("/rest/portfolio/getSymbols")
+    public Set<String> getSymbols() {
+	return manager.getSymbols();
+    }
+
     @GetMapping("/rest/portfolio/reloadCache")
     public ResponseEntity<String> reloadCache() {
 	if (alertRepository.count() > 0) {
@@ -53,16 +58,16 @@ public class PortfolioRest {
 	return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/rest/portfolio/updateQty")
-    public List<String> updateQty(@RequestParam("symbol") String symbol, @RequestParam("qty") String qty) {
-	return manager.updateQty(symbol, qty);
-    }
-
     @GetMapping("/rest/portfolio/updateAlertId")
     public ResponseEntity<String> updateAlertId(@RequestParam("id") String id) {
 	lastAlert.setAlertId(id);
 	alertRepository.save(lastAlert);
 	return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/rest/portfolio/updateQty")
+    public String updateQty(@RequestParam("symbol") String symbol, @RequestParam("qty") String qty) {
+	return manager.updateQty(symbol, qty);
     }
 
     @GetMapping("/rest/portfolio/uploadAlert")
