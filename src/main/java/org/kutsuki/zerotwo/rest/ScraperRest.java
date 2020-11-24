@@ -1,9 +1,9 @@
-package org.kutsuki.scrapermanager.rest;
+package org.kutsuki.zerotwo.rest;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
-import org.kutsuki.scrapermanager.EmailService;
+import org.kutsuki.zerotwo.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;

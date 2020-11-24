@@ -1,11 +1,11 @@
-package org.kutsuki.scrapermanager.portfolio;
+package org.kutsuki.zerotwo.portfolio;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.kutsuki.scrapermanager.document.Position;
+import org.kutsuki.zerotwo.document.Position;
 
 public class OrderModel {
     private BigDecimal priceBD;

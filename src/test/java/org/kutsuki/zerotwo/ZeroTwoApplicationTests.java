@@ -1,13 +1,13 @@
-package org.kutsuki.scrapermanager;
+package org.kutsuki.zerotwo;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.kutsuki.scrapermanager.repository.PortfolioRepository;
+import org.kutsuki.zerotwo.repository.PortfolioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class ScraperManagerApplicationTests {
+public class ZeroTwoApplicationTests {
     @Autowired
     private PortfolioRepository repository;
 

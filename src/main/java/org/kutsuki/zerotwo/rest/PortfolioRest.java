@@ -1,4 +1,4 @@
-package org.kutsuki.scrapermanager.rest;
+package org.kutsuki.zerotwo.rest;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -7,10 +7,10 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
-import org.kutsuki.scrapermanager.EmailService;
-import org.kutsuki.scrapermanager.document.Alert;
-import org.kutsuki.scrapermanager.portfolio.PortfolioManager;
-import org.kutsuki.scrapermanager.repository.AlertRepository;
+import org.kutsuki.zerotwo.EmailService;
+import org.kutsuki.zerotwo.document.Alert;
+import org.kutsuki.zerotwo.portfolio.PortfolioManager;
+import org.kutsuki.zerotwo.repository.AlertRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

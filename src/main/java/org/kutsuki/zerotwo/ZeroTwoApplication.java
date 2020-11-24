@@ -1,4 +1,4 @@
-package org.kutsuki.scrapermanager;
+package org.kutsuki.zerotwo;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -18,15 +18,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class ScraperManagerApplication {
+public class ZeroTwoApplication {
     private static final String GIF = "/ZeroTwo.gif";
     private static final String TITLE = "Zero Two";
 
     public static void main(String[] args) {
-	ConfigurableApplicationContext ctx = new SpringApplicationBuilder(ScraperManagerApplication.class)
+	ConfigurableApplicationContext ctx = new SpringApplicationBuilder(ZeroTwoApplication.class)
 		.headless(false).run(args);
 
-	URL url = ScraperManagerApplication.class.getResource(GIF);
+	URL url = ZeroTwoApplication.class.getResource(GIF);
 	Icon icon = new ImageIcon(url);
 	JLabel label = new JLabel(icon);
 

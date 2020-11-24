@@ -1,4 +1,4 @@
-package org.kutsuki.scrapermanager.portfolio;
+package org.kutsuki.zerotwo.portfolio;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,9 +16,9 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
-import org.kutsuki.scrapermanager.EmailService;
-import org.kutsuki.scrapermanager.document.Position;
-import org.kutsuki.scrapermanager.repository.PortfolioRepository;
+import org.kutsuki.zerotwo.EmailService;
+import org.kutsuki.zerotwo.document.Position;
+import org.kutsuki.zerotwo.repository.PortfolioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

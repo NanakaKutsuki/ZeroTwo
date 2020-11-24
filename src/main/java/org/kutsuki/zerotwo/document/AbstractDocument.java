@@ -1,4 +1,4 @@
-package org.kutsuki.scrapermanager.document;
+package org.kutsuki.zerotwo.document;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

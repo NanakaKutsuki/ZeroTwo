@@ -1,4 +1,4 @@
-package org.kutsuki.scrapermanager;
+package org.kutsuki.zerotwo;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
