@@ -78,7 +78,6 @@ public class PortfolioRest {
 	    } catch (Exception e) {
 		service.emailException(uriAlert, e);
 	    }
-
 	}
 
 	// return finished

@@ -40,10 +40,6 @@ public class ScraperRest {
 	this.tradingOpen = false;
     }
 
-    public String getShadowLink() {
-	return shadowLink;
-    }
-
     @GetMapping("/rest/scraper/closeWindows")
     public void closeWindows() {
 	try {
@@ -83,7 +79,7 @@ public class ScraperRest {
 	}
     }
 
-    @Scheduled(cron = "0 * 9-18 * * MON-FRI")
+    @Scheduled(cron = "0 * 8-18 * * MON-FRI")
     public void openTradingWindow() {
 	if (!tradingOpen) {
 	    try {
