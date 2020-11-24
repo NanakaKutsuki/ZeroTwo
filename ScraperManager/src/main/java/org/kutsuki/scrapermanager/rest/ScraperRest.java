@@ -22,8 +22,8 @@ public class ScraperRest {
     @Autowired
     private EmailService service;
 
-    @Value("${scraper.restart}")
-    private String restartLink;
+    @Value("${scraper.heartbeat}")
+    private String heartbeatLink;
 
     @Value("${scraper.hotel}")
     private String hotelLink;
@@ -53,6 +53,18 @@ public class ScraperRest {
 	} catch (Exception e) {
 	    service.emailException("Error closing Chrome!", e);
 	}
+    }
+
+    @Scheduled(cron = "55 */10 0,11-23 * * *")
+    public void closeWindowsIfBusy() {
+	if (StringUtils.isNotEmpty(httpGet(hotelLink))) {
+	    closeWindows();
+	}
+    }
+
+    @Scheduled(cron = "0 * * * * *")
+    public void heartbeat() {
+	httpGet(heartbeatLink);
     }
 
     @Scheduled(cron = "0 * 0,11-23 * * *")
