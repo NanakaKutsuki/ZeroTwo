@@ -1,5 +1,6 @@
 package org.kutsuki.zerotwo.rest;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
@@ -78,7 +79,7 @@ public class PortfolioRest {
 
 		// update alert id
 		updateAlertId(id);
-	    } catch (Exception e) {
+	    } catch (UnsupportedEncodingException e) {
 		service.emailException(uriAlert, e);
 	    }
 	}
