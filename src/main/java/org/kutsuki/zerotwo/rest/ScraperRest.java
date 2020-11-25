@@ -53,7 +53,7 @@ public class ScraperRest {
 
     @Scheduled(cron = "55 */10 0,11-23 * * *")
     public void closeWindowsIfBusy() {
-	if (StringUtils.isNotEmpty(httpGet(hotelLink))) {
+	if (hotelOpen && StringUtils.isNotEmpty(httpGet(hotelLink))) {
 	    closeWindows();
 	}
     }
@@ -79,7 +79,7 @@ public class ScraperRest {
 	}
     }
 
-    @Scheduled(cron = "0 * 8-18 * * MON-FRI")
+    @Scheduled(cron = "0 * 9-18 * * MON-FRI")
     public void openTradingWindow() {
 	if (!tradingOpen) {
 	    try {
