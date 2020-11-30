@@ -32,6 +32,8 @@ public class PortfolioManager {
     private static final String PORTFOLIO = "[PORTFOLIO]";
     private static final String SELL = "SELL ";
     private static final String SOLD = "SOLD ";
+    private static final String STOP = "STP ";
+    private static final String STOP_EXPLAINATION = " - This trade is a STOP order!";
     private static final String ST_WEEKLY = "ST Weekly";
     private static final String WORKING = "WORKING";
     private static final String WORKING_EXPLAINATION = " - This trade has not been filled!";
@@ -61,6 +63,7 @@ public class PortfolioManager {
 	this.spreadList = new ArrayList<AbstractSpread>();
 	this.spreadList.add(new IronCondorSpread());
 	this.spreadList.add(new UnbalancedButterflySpread());
+	this.spreadList.add(new DiagonalSpread());
 	this.spreadList.add(new RatioSpread());
 	this.spreadList.add(new VerticalSpread());
 	this.spreadList.add(new ButterflySpread());
@@ -81,6 +84,7 @@ public class PortfolioManager {
 	    // only # and unofficial have orders
 	    if (StringUtils.startsWith(body, Character.toString('#'))
 		    || StringUtils.startsWithIgnoreCase(body, UNOFFICIAL)) {
+		boolean stop = false;
 		boolean working = false;
 		boolean unofficial = false;
 		subject.append(StringUtils.substringBefore(escaped, StringUtils.SPACE));
@@ -96,6 +100,13 @@ public class PortfolioManager {
 		    subject.append(StringUtils.SPACE);
 		    subject.append(WORKING);
 		    working = true;
+		}
+
+		if (StringUtils.containsIgnoreCase(escaped, STOP)) {
+		    subject.append(StringUtils.SPACE);
+		    subject.append(STOP);
+		    escaped = StringUtils.remove(escaped, STOP);
+		    stop = true;
 		}
 
 		if (StringUtils.startsWithIgnoreCase(escaped, UNOFFICIAL)) {
@@ -128,6 +139,16 @@ public class PortfolioManager {
 			body.append(WORKING);
 			body.append(StringUtils.SPACE);
 			body.append(WORKING_EXPLAINATION);
+			body.append(service.getLineBreak());
+			body.append(service.getLineBreak());
+		    }
+
+		    // add
+		    if (stop) {
+			body.append(STOP);
+			body.append(STOP);
+			body.append(STOP);
+			body.append(STOP_EXPLAINATION);
 			body.append(service.getLineBreak());
 			body.append(service.getLineBreak());
 		    }

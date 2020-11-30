@@ -6,6 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -62,7 +63,11 @@ public abstract class AbstractSpread {
 	return qty;
     }
 
-    protected List<BigDecimal> parseSlashes(String slashes) throws Exception {
+    protected List<String> parseSlashes(String slashes) {
+	return Arrays.asList(StringUtils.split(slashes, '/'));
+    }
+
+    protected List<BigDecimal> parseSlashesBD(String slashes) throws Exception {
 	List<BigDecimal> slashList = new ArrayList<BigDecimal>();
 
 	for (String slash : StringUtils.split(slashes, '/')) {
@@ -77,7 +82,7 @@ public abstract class AbstractSpread {
     }
 
     protected BigDecimal parseStrike(String strike) throws Exception {
-	return parseSlashes(strike).get(0);
+	return parseSlashesBD(strike).get(0);
     }
 
     protected String parseSymbol(String symbol) throws Exception {

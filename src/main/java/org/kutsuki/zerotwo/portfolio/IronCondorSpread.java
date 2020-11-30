@@ -17,7 +17,7 @@ public class IronCondorSpread extends AbstractSpread {
 	int i = startIndex(split, 4);
 
 	LocalDate expiry = parseExpiry(split[4 + i], split[5 + i], split[6 + i]);
-	List<BigDecimal> strikeList = parseSlashes(split[7 + i]);
+	List<BigDecimal> strikeList = parseSlashesBD(split[7 + i]);
 	List<OptionType> type = parseTypes(split[8 + i]);
 	BigDecimal price = parsePrice(split[9 + i]);
 

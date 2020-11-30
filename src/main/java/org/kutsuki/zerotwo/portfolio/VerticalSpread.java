@@ -17,7 +17,7 @@ public class VerticalSpread extends AbstractSpread {
 	int i = startIndex(split, 3);
 
 	LocalDate expiry = parseExpiry(split[3 + i], split[4 + i], split[5 + i]);
-	List<BigDecimal> strikeList = parseSlashes(split[6 + i]);
+	List<BigDecimal> strikeList = parseSlashesBD(split[6 + i]);
 	OptionType type = parseType(split[7 + i]);
 	BigDecimal price = parsePrice(split[8 + i]);
 

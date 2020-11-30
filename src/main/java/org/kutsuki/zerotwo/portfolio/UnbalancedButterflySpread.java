@@ -12,13 +12,13 @@ public class UnbalancedButterflySpread extends AbstractSpread {
     @Override
     public OrderModel parseOrder(String[] split) throws Exception {
 	int quantity = parseQuantity(split[0]);
-	List<BigDecimal> ratioList = parseSlashes(split[1]);
+	List<BigDecimal> ratioList = parseSlashesBD(split[1]);
 	String symbol = parseSymbol(split[3]);
 
 	int i = startIndex(split, 4);
 
 	LocalDate expiry = parseExpiry(split[4 + i], split[5 + i], split[6 + i]);
-	List<BigDecimal> strikeList = parseSlashes(split[7 + i]);
+	List<BigDecimal> strikeList = parseSlashesBD(split[7 + i]);
 	OptionType type = parseType(split[8 + i]);
 	BigDecimal price = parsePrice(split[9 + i]);
 
