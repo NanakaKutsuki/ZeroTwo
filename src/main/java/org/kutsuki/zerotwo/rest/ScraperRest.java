@@ -63,7 +63,7 @@ public class ScraperRest {
 	httpGet(heartbeatLink);
     }
 
-    @Scheduled(cron = "0 * 0,11-23 * * *")
+    @Scheduled(cron = "*/10 * 0,11-23 * * *")
     public void openHotelWindow() {
 	if (!hotelOpen) {
 	    String link = httpGet(hotelLink);
@@ -79,7 +79,7 @@ public class ScraperRest {
 	}
     }
 
-    @Scheduled(cron = "0 * 9-18 * * MON-FRI")
+    @Scheduled(cron = "*/10 * 9-18 * * MON-FRI")
     public void openTradingWindow() {
 	if (!tradingOpen) {
 	    try {
