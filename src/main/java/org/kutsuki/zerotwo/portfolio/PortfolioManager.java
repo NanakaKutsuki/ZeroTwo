@@ -35,6 +35,7 @@ public class PortfolioManager {
     private static final String STOP = "STP ";
     private static final String STOP_EXPLAINATION = " - This trade is a STOP order!";
     private static final String ST_WEEKLY = "ST Weekly";
+    private static final String SYMBOL_EXPLAINATION = "Symbol yymmdd C/P Strike";
     private static final String WORKING = "WORKING";
     private static final String WORKING_EXPLAINATION = " - This trade has not been filled!";
     private static final String UNOFFICIAL = "Unofficial:";
@@ -349,21 +350,28 @@ public class PortfolioManager {
     }
 
     public String updateQty(String symbol, String qty) {
-	String result = null;
+	String result = SYMBOL_EXPLAINATION;
 
 	if (StringUtils.isNotBlank(symbol)) {
 	    Position position = portfolioMap.get(symbol);
 	    if (position != null) {
 		try {
-		    position.setQuantity(Integer.parseInt(qty));
-		    portfolioMap.put(position.getFullSymbol(), position);
-		    repository.save(position);
+		    int quantity = Integer.parseInt(qty);
+		    position.setQuantity(quantity);
+
+		    if (quantity == 0) {
+			portfolioMap.remove(position.getFullSymbol());
+			repository.delete(position);
+		    } else {
+			portfolioMap.put(position.getFullSymbol(), position);
+			repository.save(position);
+		    }
 		} catch (NumberFormatException e) {
 		    service.emailException("Error updating qty: " + symbol + StringUtils.SPACE + qty, e);
 		}
 	    }
 
-	    result = position.toString();
+	    result = position.getFullSymbol();
 	}
 
 	return result;

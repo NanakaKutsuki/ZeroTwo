@@ -11,7 +11,7 @@ import org.springframework.data.annotation.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Position extends AbstractDocument implements Comparable<Position> {
-    private static final DateTimeFormatter REST_DTF = DateTimeFormatter.ofPattern("MMddyy");
+    private static final DateTimeFormatter SYMBOL_DTF = DateTimeFormatter.ofPattern("yyMMdd");
     private static final DateTimeFormatter ORDER_DTF = DateTimeFormatter.ofPattern("d MMM yy");
     private static final String MARK = "<mark><b>";
     private static final String MARK_CLOSE = "</b></mark>";
@@ -38,8 +38,7 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 
 	StringBuilder sb = new StringBuilder();
 	sb.append(getSymbol());
-	sb.append('_');
-	sb.append(REST_DTF.format(getExpiry()));
+	sb.append(SYMBOL_DTF.format(getExpiry()));
 	sb.append(getType().toString().charAt(0));
 	sb.append(getStrike());
 	this.fullSymbol = sb.toString();
