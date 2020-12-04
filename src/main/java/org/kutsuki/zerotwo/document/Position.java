@@ -121,7 +121,6 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	return sb.toString();
     }
 
-    @JsonIgnore
     public String getFullSymbol() {
 	return fullSymbol;
     }
