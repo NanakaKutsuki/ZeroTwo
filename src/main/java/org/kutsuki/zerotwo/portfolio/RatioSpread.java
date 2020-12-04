@@ -10,7 +10,7 @@ public class RatioSpread extends AbstractSpread {
     private static final String BACKRATIO = "BACKRATIO";
 
     @Override
-    public OrderModel parseOrder(String[] split) throws Exception {
+    public OrderModel parseOrder(String[] split, int tradeId) throws Exception {
 	int quantity = parseQuantity(split[0]);
 	List<BigDecimal> ratioList = parseSlashesBD(split[1]);
 	String symbol = parseSymbol(split[3]);
@@ -24,9 +24,9 @@ public class RatioSpread extends AbstractSpread {
 
 	OrderModel order = new OrderModel(getSpread(), price, split[9 + i]);
 	int qty1 = -quantity * ratioList.get(0).intValue();
-	order.addPosition(new Position(qty1, symbol, expiry, strikeList.get(0), type));
+	order.addPosition(new Position(tradeId, qty1, symbol, expiry, strikeList.get(0), type));
 	int qty2 = quantity * ratioList.get(1).intValue();
-	order.addPosition(new Position(qty2, symbol, expiry, strikeList.get(1), type));
+	order.addPosition(new Position(tradeId, qty2, symbol, expiry, strikeList.get(1), type));
 
 	return order;
     }

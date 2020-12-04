@@ -87,9 +87,25 @@ public class PortfolioManager {
 		boolean stop = false;
 		boolean working = false;
 		boolean unofficial = false;
-		subject.append(StringUtils.substringBefore(escaped, StringUtils.SPACE));
 		body.append(service.getLineBreak());
 		body.append(service.getLineBreak());
+
+		int tradeId = -1;
+		if (StringUtils.startsWith(body, Character.toString('#'))) {
+		    try {
+			String tid = StringUtils.substringBetween(escaped, Character.toString('#'), StringUtils.SPACE);
+			tradeId = Integer.parseInt(tid);
+			subject.append('#');
+			subject.append(tradeId);
+		    } catch (NumberFormatException e) {
+			service.emailException("Error parsing Trade Id: " + body, e);
+		    }
+		}
+
+		if (StringUtils.startsWithIgnoreCase(escaped, UNOFFICIAL)) {
+		    subject.append(UNOFFICIAL);
+		    unofficial = true;
+		}
 
 		if (StringUtils.containsIgnoreCase(escaped, NEW)) {
 		    subject.append(StringUtils.SPACE);
@@ -109,13 +125,9 @@ public class PortfolioManager {
 		    stop = true;
 		}
 
-		if (StringUtils.startsWithIgnoreCase(escaped, UNOFFICIAL)) {
-		    unofficial = true;
-		}
-
 		boolean first = true;
-		List<OrderModel> orderList = createOrder(escaped);
-		String portfolio = getPortfolio(orderList, working || unofficial);
+		List<OrderModel> orderList = createOrders(escaped, tradeId);
+		String portfolio = getPortfolio(orderList, tradeId, working || unofficial);
 		for (OrderModel order : orderList) {
 		    if (!first) {
 			// only for seperate orders
@@ -132,6 +144,7 @@ public class PortfolioManager {
 
 		    // add working
 		    if (working) {
+			body.append(BOLD);
 			body.append(WORKING);
 			body.append(StringUtils.SPACE);
 			body.append(WORKING);
@@ -139,16 +152,19 @@ public class PortfolioManager {
 			body.append(WORKING);
 			body.append(StringUtils.SPACE);
 			body.append(WORKING_EXPLAINATION);
+			body.append(BOLD_CLOSE);
 			body.append(service.getLineBreak());
 			body.append(service.getLineBreak());
 		    }
 
-		    // add
+		    // add stop
 		    if (stop) {
+			body.append(BOLD);
 			body.append(STOP);
 			body.append(STOP);
 			body.append(STOP);
 			body.append(STOP_EXPLAINATION);
+			body.append(BOLD_CLOSE);
 			body.append(service.getLineBreak());
 			body.append(service.getLineBreak());
 		    }
@@ -180,6 +196,8 @@ public class PortfolioManager {
 		}
 
 		// append portfolio
+		body.append(service.getLineBreak());
+		body.append(service.getLineBreak());
 		body.append(portfolio);
 
 		subject.append(StringUtils.SPACE);
@@ -188,7 +206,9 @@ public class PortfolioManager {
 		subject.append(ST_WEEKLY);
 		subject.append(StringUtils.SPACE);
 		subject.append(LocalTime.now().format(TIME_FORMATTER));
-		body.append(getPortfolio(Collections.emptyList(), false));
+		body.append(service.getLineBreak());
+		body.append(service.getLineBreak());
+		body.append(getPortfolio(Collections.emptyList(), -1, false));
 	    }
 
 	    // email alert
@@ -207,39 +227,7 @@ public class PortfolioManager {
 	}
     }
 
-    public Set<String> getSymbols() {
-	return portfolioMap.keySet();
-    }
-
-    public void reloadCache() {
-	portfolioMap.clear();
-	for (Position position : repository.findAll()) {
-	    portfolioMap.put(position.getFullSymbol(), position);
-	}
-    }
-
-    public String updateQty(String symbol, String qty) {
-	String result = null;
-
-	if (StringUtils.isNotBlank(symbol)) {
-	    Position position = portfolioMap.get(symbol);
-	    if (position != null) {
-		try {
-		    position.setQuantity(Integer.parseInt(qty));
-		    portfolioMap.put(position.getFullSymbol(), position);
-		    repository.save(position);
-		} catch (NumberFormatException e) {
-		    service.emailException("Error updating qty: " + symbol + StringUtils.SPACE + qty, e);
-		}
-	    }
-
-	    result = position.toString();
-	}
-
-	return result;
-    }
-
-    private List<OrderModel> createOrder(String body) {
+    private List<OrderModel> createOrders(String body, int tradeId) {
 	List<OrderModel> orderList = new ArrayList<OrderModel>();
 
 	if (StringUtils.contains(body, OptionType.CALL.toString())
@@ -263,7 +251,7 @@ public class PortfolioManager {
 			AbstractSpread spread = itr.next();
 
 			if (!itr.hasNext() || StringUtils.contains(split, spread.getSpread())) {
-			    orderList.add(spread.parseOrder(split2));
+			    orderList.add(spread.parseOrder(split2, tradeId));
 			    found = true;
 			}
 		    }
@@ -276,7 +264,7 @@ public class PortfolioManager {
 	return orderList;
     }
 
-    private String getPortfolio(List<OrderModel> orderList, boolean working) {
+    private String getPortfolio(List<OrderModel> orderList, int tradeId, boolean working) {
 	LocalDate now = LocalDate.now();
 	for (Position position : portfolioMap.values()) {
 	    if (now.isAfter(position.getExpiry())) {
@@ -321,8 +309,6 @@ public class PortfolioManager {
 	}
 
 	StringBuilder sb = new StringBuilder();
-	sb.append(service.getLineBreak());
-	sb.append(service.getLineBreak());
 	sb.append(BOLD);
 	sb.append(PORTFOLIO);
 	sb.append(BOLD_CLOSE);
@@ -336,10 +322,50 @@ public class PortfolioManager {
 		sb.append(service.getLineBreak());
 	    }
 
-	    sb.append(position.getStatement());
+	    sb.append(position.getStatement(tradeId));
 	    sb.append(service.getLineBreak());
 	}
 
 	return sb.toString();
+    }
+
+    public Set<String> getSymbols() {
+	return portfolioMap.keySet();
+    }
+
+    public void reloadCache() {
+	portfolioMap.clear();
+	for (Position position : repository.findAll()) {
+	    portfolioMap.put(position.getFullSymbol(), position);
+	}
+    }
+
+    public void sendPortfolio(int tradeId) {
+	StringBuilder subject = new StringBuilder();
+	subject.append(PORTFOLIO);
+	subject.append(StringUtils.SPACE);
+	subject.append(LocalTime.now().format(TIME_FORMATTER));
+	service.email(subject.toString(), getPortfolio(Collections.emptyList(), tradeId, false));
+    }
+
+    public String updateQty(String symbol, String qty) {
+	String result = null;
+
+	if (StringUtils.isNotBlank(symbol)) {
+	    Position position = portfolioMap.get(symbol);
+	    if (position != null) {
+		try {
+		    position.setQuantity(Integer.parseInt(qty));
+		    portfolioMap.put(position.getFullSymbol(), position);
+		    repository.save(position);
+		} catch (NumberFormatException e) {
+		    service.emailException("Error updating qty: " + symbol + StringUtils.SPACE + qty, e);
+		}
+	    }
+
+	    result = position.toString();
+	}
+
+	return result;
     }
 }

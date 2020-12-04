@@ -13,7 +13,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Position extends AbstractDocument implements Comparable<Position> {
     private static final DateTimeFormatter REST_DTF = DateTimeFormatter.ofPattern("MMddyy");
     private static final DateTimeFormatter ORDER_DTF = DateTimeFormatter.ofPattern("d MMM yy");
+    private static final String MARK = "<mark><b>";
+    private static final String MARK_CLOSE = "</b></mark>";
 
+    private int tradeId;
     private int quantity;
     private String symbol;
     private LocalDate expiry;
@@ -25,7 +28,8 @@ public class Position extends AbstractDocument implements Comparable<Position> {
     @JsonIgnore
     private transient String side;
 
-    public Position(int quantity, String symbol, LocalDate expiry, BigDecimal strike, OptionType type) {
+    public Position(int tradeId, int quantity, String symbol, LocalDate expiry, BigDecimal strike, OptionType type) {
+	this.tradeId = tradeId;
 	this.quantity = quantity;
 	this.symbol = symbol;
 	this.expiry = expiry;
@@ -86,9 +90,16 @@ public class Position extends AbstractDocument implements Comparable<Position> {
     }
 
     @JsonIgnore
-    public String getStatement() {
+    public String getStatement(int tradeId) {
 	StringBuilder sb = new StringBuilder();
+	if (tradeId == getTradeId()) {
+	    sb.append(MARK);
+	}
+
 	sb.append(getSymbol());
+	sb.append(StringUtils.SPACE);
+	sb.append('#');
+	sb.append(getTradeId());
 	sb.append(StringUtils.SPACE);
 	sb.append('[');
 	sb.append(ORDER_DTF.format(getExpiry()));
@@ -104,7 +115,16 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	}
 	sb.append(getQuantity());
 
+	if (tradeId == getTradeId()) {
+	    sb.append(MARK_CLOSE);
+	}
+
 	return sb.toString();
+    }
+
+    @JsonIgnore
+    public String getFullSymbol() {
+	return fullSymbol;
     }
 
     public int getQuantity() {
@@ -127,13 +147,12 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	return strike;
     }
 
-    public OptionType getType() {
-	return type;
+    public int getTradeId() {
+	return tradeId;
     }
 
-    @JsonIgnore
-    public String getFullSymbol() {
-	return fullSymbol;
+    public OptionType getType() {
+	return type;
     }
 
     public void setQuantity(int quantity) {

@@ -11,8 +11,11 @@ public class ZeroTwoApplicationTests {
     @Autowired
     private AlertRepository repository;
 
+    // @Autowired
+    // private PortfolioManager manager;
+
     @Test
-    void contextLoads() {
+    public void contextLoads() {
 	Assertions.assertTrue(repository.count() > 0, "Should be stuff in the database");
     }
 }
