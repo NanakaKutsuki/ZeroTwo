@@ -16,6 +16,15 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.EmailService;
 import org.kutsuki.zerotwo.document.Position;
+import org.kutsuki.zerotwo.portfolio.spread.AbstractSpread;
+import org.kutsuki.zerotwo.portfolio.spread.ButterflySpread;
+import org.kutsuki.zerotwo.portfolio.spread.CondorSpread;
+import org.kutsuki.zerotwo.portfolio.spread.DiagonalSpread;
+import org.kutsuki.zerotwo.portfolio.spread.IronCondorSpread;
+import org.kutsuki.zerotwo.portfolio.spread.RatioSpread;
+import org.kutsuki.zerotwo.portfolio.spread.SingleSpread;
+import org.kutsuki.zerotwo.portfolio.spread.UnbalancedButterflySpread;
+import org.kutsuki.zerotwo.portfolio.spread.VerticalSpread;
 import org.kutsuki.zerotwo.repository.PortfolioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -75,6 +84,10 @@ public class PortfolioManager {
     }
 
     public void parseAlert(String escaped) {
+	parseAlert(escaped, false);
+    }
+
+    public void parseAlert(String escaped, boolean test) {
 	try {
 	    StringBuilder subject = new StringBuilder();
 	    StringBuilder body = new StringBuilder();
@@ -212,16 +225,20 @@ public class PortfolioManager {
 		body.append(getPortfolio(Collections.emptyList(), -1, false));
 	    }
 
-	    // email alert
-	    service.email(emailPortfolio, subject.toString(), body.toString());
+	    if (!test) {
+		// email alert
+		service.email(emailPortfolio, subject.toString(), body.toString());
 
-	    // update portfolio repository
-	    if (!deleteList.isEmpty()) {
-		repository.deleteAll(deleteList);
-	    }
+		// update portfolio repository
+		if (!deleteList.isEmpty()) {
+		    repository.deleteAll(deleteList);
+		}
 
-	    if (!saveList.isEmpty()) {
-		repository.saveAll(saveList);
+		if (!saveList.isEmpty()) {
+		    repository.saveAll(saveList);
+		}
+	    } else {
+		service.email(subject.toString(), body.toString());
 	    }
 	} catch (Exception e) {
 	    service.emailException(escaped, e);

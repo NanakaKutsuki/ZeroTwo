@@ -1,13 +1,15 @@
-package org.kutsuki.zerotwo.portfolio;
+package org.kutsuki.zerotwo.portfolio.spread;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 import org.kutsuki.zerotwo.document.Position;
+import org.kutsuki.zerotwo.portfolio.OptionType;
+import org.kutsuki.zerotwo.portfolio.OrderModel;
 
-public class UnbalancedButterflySpread extends AbstractSpread {
-    private static final String UNBALANCED_BUTTERFLY = "~BUTTERFLY";
+public class RatioSpread extends AbstractSpread {
+    private static final String BACKRATIO = "BACKRATIO";
 
     @Override
     public OrderModel parseOrder(String[] split, int tradeId) throws Exception {
@@ -23,18 +25,16 @@ public class UnbalancedButterflySpread extends AbstractSpread {
 	BigDecimal price = parsePrice(split[9 + i]);
 
 	OrderModel order = new OrderModel(getSpread(), price, split[9 + i]);
-	int qty1 = quantity * ratioList.get(0).intValue();
+	int qty1 = -quantity * ratioList.get(0).intValue();
 	order.addPosition(new Position(tradeId, qty1, symbol, expiry, strikeList.get(0), type));
-	int qty2 = -quantity * ratioList.get(1).intValue();
+	int qty2 = quantity * ratioList.get(1).intValue();
 	order.addPosition(new Position(tradeId, qty2, symbol, expiry, strikeList.get(1), type));
-	int qty3 = quantity * ratioList.get(2).intValue();
-	order.addPosition(new Position(tradeId, qty3, symbol, expiry, strikeList.get(2), type));
 
 	return order;
     }
 
     @Override
     public String getSpread() {
-	return UNBALANCED_BUTTERFLY;
+	return BACKRATIO;
     }
 }

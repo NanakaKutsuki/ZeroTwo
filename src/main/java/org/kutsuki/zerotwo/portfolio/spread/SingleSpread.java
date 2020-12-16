@@ -1,9 +1,11 @@
-package org.kutsuki.zerotwo.portfolio;
+package org.kutsuki.zerotwo.portfolio.spread;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.kutsuki.zerotwo.document.Position;
+import org.kutsuki.zerotwo.portfolio.OptionType;
+import org.kutsuki.zerotwo.portfolio.OrderModel;
 
 public class SingleSpread extends AbstractSpread {
     private static final String SINGLE = "SINGLE";

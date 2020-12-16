@@ -1,13 +1,15 @@
-package org.kutsuki.zerotwo.portfolio;
+package org.kutsuki.zerotwo.portfolio.spread;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 import org.kutsuki.zerotwo.document.Position;
+import org.kutsuki.zerotwo.portfolio.OptionType;
+import org.kutsuki.zerotwo.portfolio.OrderModel;
 
-public class CondorSpread extends AbstractSpread {
-    private static final String CONDOR = "CONDOR";
+public class ButterflySpread extends AbstractSpread {
+    private static final String BUTTERFLY = "BUTTERFLY";
 
     @Override
     public OrderModel parseOrder(String[] split, int tradeId) throws Exception {
@@ -23,15 +25,15 @@ public class CondorSpread extends AbstractSpread {
 
 	OrderModel order = new OrderModel(getSpread(), price, split[8 + i]);
 	order.addPosition(new Position(tradeId, quantity, symbol, expiry, strikeList.get(0), type));
-	order.addPosition(new Position(tradeId, -quantity, symbol, expiry, strikeList.get(1), type));
-	order.addPosition(new Position(tradeId, -quantity, symbol, expiry, strikeList.get(2), type));
-	order.addPosition(new Position(tradeId, quantity, symbol, expiry, strikeList.get(3), type));
+	int qty2 = -quantity * 2;
+	order.addPosition(new Position(tradeId, qty2, symbol, expiry, strikeList.get(1), type));
+	order.addPosition(new Position(tradeId, quantity, symbol, expiry, strikeList.get(2), type));
 
 	return order;
     }
 
     @Override
     public String getSpread() {
-	return CONDOR;
+	return BUTTERFLY;
     }
 }

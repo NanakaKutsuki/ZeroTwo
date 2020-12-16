@@ -1,4 +1,4 @@
-package org.kutsuki.zerotwo.portfolio;
+package org.kutsuki.zerotwo.portfolio.spread;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
+import org.kutsuki.zerotwo.portfolio.OptionType;
+import org.kutsuki.zerotwo.portfolio.OrderModel;
 
 public abstract class AbstractSpread {
     private static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder().parseCaseInsensitive()
@@ -86,7 +88,7 @@ public abstract class AbstractSpread {
     }
 
     protected String parseSymbol(String symbol) throws Exception {
-	if (StringUtils.length(symbol) > 4 || StringUtils.length(symbol) == 0) {
+	if (StringUtils.length(symbol) > 6 || StringUtils.length(symbol) == 0) {
 	    throw new Exception("Error parsing symbol: " + symbol);
 	}
 
