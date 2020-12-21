@@ -2,6 +2,7 @@ package org.kutsuki.zerotwo;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.kutsuki.zerotwo.portfolio.PortfolioManager;
 import org.kutsuki.zerotwo.repository.PortfolioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,8 +12,13 @@ public class ZeroTwoApplicationTests {
     @Autowired
     private PortfolioRepository repository;
 
+    @Autowired
+    private PortfolioManager manager;
+
     @Test
     public void contextLoads() {
+	String escaped = "";
+	manager.parseAlert(escaped, true);
 	Assertions.assertTrue(repository.count() > 0, "Should be stuff in the database");
     }
 }

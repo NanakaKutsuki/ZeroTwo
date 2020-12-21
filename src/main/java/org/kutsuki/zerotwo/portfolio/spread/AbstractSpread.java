@@ -18,6 +18,7 @@ public abstract class AbstractSpread {
     private static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder().parseCaseInsensitive()
 	    .appendPattern("d MMM yy").toFormatter(Locale.ENGLISH);
     private static final String HUNDRED = "100";
+    private static final String QUARTERLYS = "(Quarterlys)";
     private static final String WEEKLYS = "(Weeklys)";
 
     public abstract String getSpread();
@@ -118,7 +119,9 @@ public abstract class AbstractSpread {
 	    i++;
 	}
 
-	if (StringUtils.equalsIgnoreCase(split[start + 1], WEEKLYS)) {
+	if (StringUtils.equalsIgnoreCase(split[start + 1], QUARTERLYS)) {
+	    i++;
+	} else if (StringUtils.equalsIgnoreCase(split[start + 1], WEEKLYS)) {
 	    i++;
 	}
 
