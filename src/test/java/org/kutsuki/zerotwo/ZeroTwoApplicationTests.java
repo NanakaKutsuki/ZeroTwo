@@ -17,8 +17,9 @@ public class ZeroTwoApplicationTests {
 
     @Test
     public void contextLoads() {
+	boolean test = true;
 	String escaped = "";
-	manager.parseAlert(escaped, true);
+	manager.parseAlert(escaped, test);
 	Assertions.assertTrue(repository.count() > 0, "Should be stuff in the database");
     }
 }
