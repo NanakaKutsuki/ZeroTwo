@@ -160,4 +160,8 @@ public class Position extends AbstractDocument implements Comparable<Position> {
     public void setSide(String side) {
 	this.side = side;
     }
+
+    public void setTradeId(int tradeId) {
+	this.tradeId = tradeId;
+    }
 }

@@ -69,6 +69,11 @@ public class PortfolioRest {
 	return manager.updateQty(symbol, qty);
     }
 
+    @GetMapping("/rest/portfolio/updateTradeId")
+    public String updateTradeId(@RequestParam("symbol") String symbol, @RequestParam("id") String id) {
+	return manager.updateTradeId(symbol, id);
+    }
+
     @GetMapping("/rest/portfolio/uploadAlert")
     public ResponseEntity<String> uploadAlert(@RequestParam("id") Integer id, @RequestParam("alert") String uriAlert) {
 	if (id != alert.getAlertId()) {

@@ -366,6 +366,29 @@ public class PortfolioManager {
 	service.email(subject.toString(), getPortfolio(Collections.emptyList(), tradeId, false));
     }
 
+    public String updateTradeId(String symbol, String id) {
+	String result = SYMBOL_EXPLAINATION;
+
+	if (StringUtils.isNotBlank(symbol)) {
+	    Position position = portfolioMap.get(symbol);
+	    if (position != null) {
+		try {
+		    int tradeId = Integer.parseInt(id);
+		    position.setTradeId(tradeId);
+
+		    portfolioMap.put(position.getFullSymbol(), position);
+		    repository.save(position);
+		} catch (NumberFormatException e) {
+		    service.emailException("Error updating trade id: " + symbol + StringUtils.SPACE + id, e);
+		}
+	    }
+
+	    result = position.getFullSymbol();
+	}
+
+	return result;
+    }
+
     public String updateQty(String symbol, String qty) {
 	String result = SYMBOL_EXPLAINATION;
 
