@@ -7,10 +7,11 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.kutsuki.zerotwo.EmailService;
-import org.kutsuki.zerotwo.document.Alert;
+import org.kutsuki.zerotwo.document.Opening;
 import org.kutsuki.zerotwo.portfolio.PortfolioManager;
-import org.kutsuki.zerotwo.repository.AlertRepository;
+import org.kutsuki.zerotwo.repository.OpeningsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class PortfolioRest {
+    private static final String SHADOW = "Shadow";
+
     @Autowired
-    private AlertRepository alertRepository;
+    private OpeningsRepository alertRepository;
 
     @Autowired
     private EmailService service;
@@ -28,7 +31,7 @@ public class PortfolioRest {
     @Autowired
     private PortfolioManager manager;
 
-    private Alert alert;
+    private Opening alert;
 
     @PostConstruct
     public void postConstruct() {
@@ -37,7 +40,7 @@ public class PortfolioRest {
 
     @GetMapping("/rest/portfolio/getAlertId")
     public Integer getAlertId() {
-	return alert.getAlertId();
+	return Integer.parseInt(alert.getLastChecked());
     }
 
     @GetMapping("/rest/portfolio/getSymbols")
@@ -47,10 +50,7 @@ public class PortfolioRest {
 
     @GetMapping("/rest/portfolio/reloadCache")
     public ResponseEntity<String> reloadCache() {
-	if (alertRepository.count() > 0) {
-	    this.alert = alertRepository.findAll().get(0);
-	}
-
+	this.alert = alertRepository.findByProject(SHADOW);
 	manager.reloadCache();
 
 	// return finished
@@ -58,8 +58,8 @@ public class PortfolioRest {
     }
 
     @GetMapping("/rest/portfolio/updateAlertId")
-    public ResponseEntity<String> updateAlertId(@RequestParam("id") Integer id) {
-	alert.setAlertId(id);
+    public ResponseEntity<String> updateAlertId(@RequestParam("id") String id) {
+	alert.setLastChecked(id);
 	alertRepository.save(alert);
 	return ResponseEntity.ok().build();
     }
@@ -75,8 +75,8 @@ public class PortfolioRest {
     }
 
     @GetMapping("/rest/portfolio/uploadAlert")
-    public ResponseEntity<String> uploadAlert(@RequestParam("id") Integer id, @RequestParam("alert") String uriAlert) {
-	if (id != alert.getAlertId()) {
+    public ResponseEntity<String> uploadAlert(@RequestParam("id") String id, @RequestParam("alert") String uriAlert) {
+	if (StringUtils.equals(id, alert.getLastChecked())) {
 	    try {
 		// decode URI Alert
 		String escaped = URLDecoder.decode(uriAlert, StandardCharsets.UTF_8.toString());
