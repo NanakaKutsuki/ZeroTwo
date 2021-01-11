@@ -1,11 +1,7 @@
 package org.kutsuki.zerotwo.rest;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.EmailService;
 import org.kutsuki.zerotwo.document.Opening;
 import org.kutsuki.zerotwo.openings.EitoOpenings;
@@ -14,6 +10,8 @@ import org.kutsuki.zerotwo.repository.OpeningsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,7 +32,7 @@ public class OpeningsRest {
     private OpeningsRepository repository;
 
     @GetMapping("/rest/openings/getLastChecked")
-    public String getLastChecked(@RequestParam("project") String project) {
+    public String getLastChecked(@RequestParam(value = "project", required = true) String project) {
 	Opening v = repository.findByProject(project);
 	return v.getLastChecked();
     }
@@ -42,13 +40,6 @@ public class OpeningsRest {
     @GetMapping("/rest/openings/clearPlatinumReef")
     public ResponseEntity<String> clearPlatinumReef() {
 	platinumReef.clear();
-	return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/rest/openings/addPlatinumReef")
-    public ResponseEntity<String> addPlatinumReef(@RequestParam("rowNum") String rowNum,
-	    @RequestParam("content") String content) {
-	platinumReef.addOpening(rowNum, escape(content));
 	return ResponseEntity.ok().build();
     }
 
@@ -68,16 +59,9 @@ public class OpeningsRest {
 	return ResponseEntity.ok().build();
     }
 
-    private String escape(String content) {
-	String escaped = StringUtils.EMPTY;
-
-	try {
-	    // decode URI Alert
-	    escaped = URLDecoder.decode(content, StandardCharsets.UTF_8.toString());
-	} catch (UnsupportedEncodingException e) {
-	    service.emailException("Unable to escape opening: " + content, e);
-	}
-
-	return escaped;
+    @PostMapping("rest/openings/addPlatinumReef")
+    public ResponseEntity<String> addPlatinumReef(@RequestBody PostBody body) {
+	platinumReef.addOpening(body.getId(), body.getBody());
+	return ResponseEntity.ok().build();
     }
 }

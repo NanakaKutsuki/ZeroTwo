@@ -15,13 +15,27 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
 @EnableScheduling
 public class ZeroTwoApplication {
     private static final String GIF = "/ZeroTwo.gif";
+    private static final String MAPPING = "/**";
     private static final String TITLE = "Zero Two";
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+	return new WebMvcConfigurer() {
+	    @Override
+	    public void addCorsMappings(CorsRegistry registry) {
+		registry.addMapping(MAPPING);
+	    }
+	};
+    }
 
     public static void main(String[] args) {
 	ConfigurableApplicationContext ctx = new SpringApplicationBuilder(ZeroTwoApplication.class).headless(false)
