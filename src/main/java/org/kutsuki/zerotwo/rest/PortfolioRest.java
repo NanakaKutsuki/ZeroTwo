@@ -76,7 +76,7 @@ public class PortfolioRest {
 
     @GetMapping("/rest/portfolio/uploadAlert")
     public ResponseEntity<String> uploadAlert(@RequestParam("id") String id, @RequestParam("alert") String uriAlert) {
-	if (StringUtils.equals(id, alert.getLastChecked())) {
+	if (!StringUtils.equals(id, alert.getLastChecked())) {
 	    try {
 		// decode URI Alert
 		String escaped = URLDecoder.decode(uriAlert, StandardCharsets.UTF_8.toString());

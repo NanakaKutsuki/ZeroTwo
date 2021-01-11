@@ -46,8 +46,9 @@ public class OpeningsRest {
     }
 
     @GetMapping("/rest/openings/addPlatinumReef")
-    public ResponseEntity<String> addPlatinumReef(@RequestParam("content") String content) {
-	platinumReef.addOpening(escape(content));
+    public ResponseEntity<String> addPlatinumReef(@RequestParam("rowNum") String rowNum,
+	    @RequestParam("content") String content) {
+	platinumReef.addOpening(rowNum, escape(content));
 	return ResponseEntity.ok().build();
     }
 
