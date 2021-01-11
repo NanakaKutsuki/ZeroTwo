@@ -12,7 +12,7 @@ public class DiagonalSpread extends AbstractSpread {
     private static final String DIAGONAL = "DIAGONAL";
 
     @Override
-    public OrderModel parseOrder(String[] split, int tradeId) throws Exception {
+    public OrderModel parseOrder(String[] split, int tradeId, boolean am) throws Exception {
 	int quantity = parseQuantity(split[0]);
 	String symbol = parseSymbol(split[2]);
 
@@ -27,8 +27,8 @@ public class DiagonalSpread extends AbstractSpread {
 	BigDecimal price = parsePrice(split[10 + i]);
 
 	OrderModel order = new OrderModel(getSpread(), price, split[10 + i]);
-	order.addPosition(new Position(tradeId, quantity, symbol, expiry, strikeList.get(0), type));
-	order.addPosition(new Position(tradeId, -quantity, symbol, expiry2, strikeList.get(1), type));
+	order.addPosition(new Position(tradeId, quantity, symbol, expiry, am, strikeList.get(0), type));
+	order.addPosition(new Position(tradeId, -quantity, symbol, expiry2, am, strikeList.get(1), type));
 
 	return order;
     }

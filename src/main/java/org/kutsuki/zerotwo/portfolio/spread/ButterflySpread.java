@@ -12,7 +12,7 @@ public class ButterflySpread extends AbstractSpread {
     private static final String BUTTERFLY = "BUTTERFLY";
 
     @Override
-    public OrderModel parseOrder(String[] split, int tradeId) throws Exception {
+    public OrderModel parseOrder(String[] split, int tradeId, boolean am) throws Exception {
 	int quantity = parseQuantity(split[0]);
 	String symbol = parseSymbol(split[2]);
 
@@ -24,10 +24,10 @@ public class ButterflySpread extends AbstractSpread {
 	BigDecimal price = parsePrice(split[8 + i]);
 
 	OrderModel order = new OrderModel(getSpread(), price, split[8 + i]);
-	order.addPosition(new Position(tradeId, quantity, symbol, expiry, strikeList.get(0), type));
+	order.addPosition(new Position(tradeId, quantity, symbol, expiry, am, strikeList.get(0), type));
 	int qty2 = -quantity * 2;
-	order.addPosition(new Position(tradeId, qty2, symbol, expiry, strikeList.get(1), type));
-	order.addPosition(new Position(tradeId, quantity, symbol, expiry, strikeList.get(2), type));
+	order.addPosition(new Position(tradeId, qty2, symbol, expiry, am, strikeList.get(1), type));
+	order.addPosition(new Position(tradeId, quantity, symbol, expiry, am, strikeList.get(2), type));
 
 	return order;
     }

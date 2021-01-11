@@ -16,7 +16,7 @@ public class SingleSpread extends AbstractSpread {
     }
 
     @Override
-    public OrderModel parseOrder(String[] split, int tradeId) throws Exception {
+    public OrderModel parseOrder(String[] split, int tradeId, boolean am) throws Exception {
 	int quantity = parseQuantity(split[0]);
 	String symbol = parseSymbol(split[1]);
 
@@ -28,7 +28,7 @@ public class SingleSpread extends AbstractSpread {
 	BigDecimal price = parsePrice(split[7 + i]);
 
 	OrderModel order = new OrderModel(type.toString(), price, split[7 + i]);
-	order.addPosition(new Position(tradeId, quantity, symbol, expiry, strike, type));
+	order.addPosition(new Position(tradeId, quantity, symbol, expiry, am, strike, type));
 
 	return order;
     }

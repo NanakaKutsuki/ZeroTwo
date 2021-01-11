@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PortfolioManager {
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("h:mma");
+    private static final String AM = "[AM] ";
     private static final String BOLD = "<b>";
     private static final String BOLD_CLOSE = "</b>";
     private static final String BOT = "BOT ";
@@ -251,6 +252,12 @@ public class PortfolioManager {
 	if (StringUtils.contains(body, OptionType.CALL.toString())
 		|| StringUtils.contains(body, OptionType.PUT.toString())) {
 	    try {
+		boolean am = false;
+		if (StringUtils.contains(body, AM)) {
+		    body = StringUtils.remove(body, AM);
+		    am = true;
+		}
+
 		for (String split : StringUtils.split(body, '&')) {
 		    if (StringUtils.contains(split, BOT)) {
 			split = StringUtils.substringAfter(split, BOT);
@@ -269,7 +276,7 @@ public class PortfolioManager {
 			AbstractSpread spread = itr.next();
 
 			if (!itr.hasNext() || StringUtils.contains(split, spread.getSpread())) {
-			    orderList.add(spread.parseOrder(split2, tradeId));
+			    orderList.add(spread.parseOrder(split2, tradeId, am));
 			    found = true;
 			}
 		    }

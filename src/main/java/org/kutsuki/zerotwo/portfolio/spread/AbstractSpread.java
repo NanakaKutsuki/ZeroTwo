@@ -23,7 +23,7 @@ public abstract class AbstractSpread {
 
     public abstract String getSpread();
 
-    public abstract OrderModel parseOrder(String[] split, int tradeId) throws Exception;
+    public abstract OrderModel parseOrder(String[] split, int tradeId, boolean am) throws Exception;
 
     protected LocalDate parseExpiry(String day, String month, String year) throws Exception {
 	LocalDate exp = null;

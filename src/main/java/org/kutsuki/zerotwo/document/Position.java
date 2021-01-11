@@ -20,6 +20,7 @@ public class Position extends AbstractDocument implements Comparable<Position> {
     private int quantity;
     private String symbol;
     private LocalDate expiry;
+    private boolean am;
     private BigDecimal strike;
     private OptionType type;
     private String fullSymbol;
@@ -28,11 +29,13 @@ public class Position extends AbstractDocument implements Comparable<Position> {
     @JsonIgnore
     private transient String side;
 
-    public Position(int tradeId, int quantity, String symbol, LocalDate expiry, BigDecimal strike, OptionType type) {
+    public Position(int tradeId, int quantity, String symbol, LocalDate expiry, boolean am, BigDecimal strike,
+	    OptionType type) {
 	this.tradeId = tradeId;
 	this.quantity = quantity;
 	this.symbol = symbol;
 	this.expiry = expiry;
+	this.am = am;
 	this.strike = strike;
 	this.type = type;
 
@@ -52,10 +55,14 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	    result = getExpiry().compareTo(rhs.getExpiry());
 
 	    if (result == 0) {
-		result = getStrike().compareTo(rhs.getStrike());
+		result = Boolean.compare(isAM(), rhs.isAM());
 
 		if (result == 0) {
-		    result = getType().compareTo(rhs.getType());
+		    result = getStrike().compareTo(rhs.getStrike());
+
+		    if (result == 0) {
+			result = getType().compareTo(rhs.getType());
+		    }
 		}
 	    }
 	}
@@ -79,6 +86,11 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	sb.append(StringUtils.SPACE);
 	sb.append('[');
 	sb.append(ORDER_DTF.format(getExpiry()));
+	if (isAM()) {
+	    sb.append(StringUtils.SPACE);
+	    sb.append('A');
+	    sb.append('M');
+	}
 	sb.append(']');
 	sb.append(StringUtils.SPACE);
 	sb.append(getStrike());
@@ -102,6 +114,11 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	sb.append(StringUtils.SPACE);
 	sb.append('[');
 	sb.append(ORDER_DTF.format(getExpiry()));
+	if (isAM()) {
+	    sb.append(StringUtils.SPACE);
+	    sb.append('A');
+	    sb.append('M');
+	}
 	sb.append(']');
 	sb.append(StringUtils.SPACE);
 	sb.append(getStrike());
@@ -139,6 +156,10 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 
     public LocalDate getExpiry() {
 	return expiry;
+    }
+
+    public boolean isAM() {
+	return am;
     }
 
     public BigDecimal getStrike() {

@@ -12,7 +12,7 @@ public class UnbalancedButterflySpread extends AbstractSpread {
     private static final String UNBALANCED_BUTTERFLY = "~BUTTERFLY";
 
     @Override
-    public OrderModel parseOrder(String[] split, int tradeId) throws Exception {
+    public OrderModel parseOrder(String[] split, int tradeId, boolean am) throws Exception {
 	int quantity = parseQuantity(split[0]);
 	List<BigDecimal> ratioList = parseSlashesBD(split[1]);
 	String symbol = parseSymbol(split[3]);
@@ -26,11 +26,11 @@ public class UnbalancedButterflySpread extends AbstractSpread {
 
 	OrderModel order = new OrderModel(getSpread(), price, split[9 + i]);
 	int qty1 = quantity * ratioList.get(0).intValue();
-	order.addPosition(new Position(tradeId, qty1, symbol, expiry, strikeList.get(0), type));
+	order.addPosition(new Position(tradeId, qty1, symbol, expiry, am, strikeList.get(0), type));
 	int qty2 = -quantity * ratioList.get(1).intValue();
-	order.addPosition(new Position(tradeId, qty2, symbol, expiry, strikeList.get(1), type));
+	order.addPosition(new Position(tradeId, qty2, symbol, expiry, am, strikeList.get(1), type));
 	int qty3 = quantity * ratioList.get(2).intValue();
-	order.addPosition(new Position(tradeId, qty3, symbol, expiry, strikeList.get(2), type));
+	order.addPosition(new Position(tradeId, qty3, symbol, expiry, am, strikeList.get(2), type));
 
 	return order;
     }
