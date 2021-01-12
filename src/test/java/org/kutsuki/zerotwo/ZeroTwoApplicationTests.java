@@ -2,18 +2,18 @@ package org.kutsuki.zerotwo;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.kutsuki.zerotwo.portfolio.PortfolioManager;
-import org.kutsuki.zerotwo.repository.AccountRepository;
+import org.kutsuki.zerotwo.repository.OpeningsRepository;
+import org.kutsuki.zerotwo.rest.openings.RoadRallyRest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class ZeroTwoApplicationTests {
     @Autowired
-    private AccountRepository repository;
+    private OpeningsRepository repository;
 
     @Autowired
-    private PortfolioManager manager;
+    private RoadRallyRest rest;
 
     @Test
     public void contextLoads() {

@@ -1,4 +1,4 @@
-package org.kutsuki.zerotwo.openings;
+package org.kutsuki.zerotwo.rest.openings;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.kutsuki.zerotwo.EmailService;
+import org.kutsuki.zerotwo.document.Opening;
+import org.kutsuki.zerotwo.repository.OpeningsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -37,6 +39,7 @@ public abstract class AbstractSheets {
     private static final String APPLICATION_NAME = "ZeroTwo";
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
     private static final String OFFLINE = "offline";
+    private static final String LAST_UPDATED = "Last Updated";
     private static final String TOKENS_DIRECTORY_PATH = "/tokens";
     private static final String USER = "user";
     private static final String USER_ENTERED = "USER_ENTERED";
@@ -46,6 +49,9 @@ public abstract class AbstractSheets {
 
     @Autowired
     private EmailService service;
+
+    @Autowired
+    private OpeningsRepository repository;
 
     @Value("${vacancies.path}")
     private String path;
@@ -63,15 +69,19 @@ public abstract class AbstractSheets {
 	}
     }
 
-    public EmailService getEmailService() {
-	return service;
+    // protected EmailService getEmailService() {
+    // return service;
+    // }
+
+    protected String getLastUpdated() {
+	return LAST_UPDATED;
     }
 
     public String getPath() {
 	return path;
     }
 
-    public void clearSheet(String range) {
+    protected void clearSheet(String range) {
 	int retries = 0;
 	ClearValuesResponse response = null;
 
@@ -88,7 +98,7 @@ public abstract class AbstractSheets {
 	}
     }
 
-    public List<List<Object>> readSheet(String range) {
+    protected List<List<Object>> readSheet(String range) {
 	int retries = 0;
 	List<List<Object>> result = null;
 
@@ -108,7 +118,13 @@ public abstract class AbstractSheets {
 	return result;
     }
 
-    public void writeSheet(String range, ValueRange body) {
+    protected void setLastChecked(String project, String lastChecked) {
+	Opening opening = repository.findByProject(project);
+	opening.setLastChecked(lastChecked);
+	repository.save(opening);
+    }
+
+    protected void writeSheet(String range, ValueRange body) {
 	boolean completed = false;
 	int retries = 0;
 

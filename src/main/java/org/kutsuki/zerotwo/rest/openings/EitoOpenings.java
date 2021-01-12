@@ -1,4 +1,4 @@
-package org.kutsuki.zerotwo.openings;
+package org.kutsuki.zerotwo.rest.openings;
 
 import java.io.File;
 import java.io.FileInputStream;

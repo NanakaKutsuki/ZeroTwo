@@ -8,6 +8,7 @@ import org.apache.commons.codec.binary.StringUtils;
 import org.kutsuki.zerotwo.document.Opening;
 import org.kutsuki.zerotwo.portfolio.PortfolioManager;
 import org.kutsuki.zerotwo.repository.OpeningsRepository;
+import org.kutsuki.zerotwo.rest.post.PostTuple;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -72,10 +73,10 @@ public class PortfolioRest {
     }
 
     @PostMapping("/rest/portfolio/uploadAlert")
-    public ResponseEntity<String> uploadAlert(@RequestBody PostBody body) {
-	if (!StringUtils.equals(body.getId(), alert.getLastChecked())) {
-	    manager.parseAlert(body.getBody());
-	    updateLastChecked(body.getId());
+    public ResponseEntity<String> uploadAlert(@RequestBody PostTuple postData) {
+	if (!StringUtils.equals(postData.getId(), alert.getLastChecked())) {
+	    manager.parseAlert(postData.getData());
+	    updateLastChecked(postData.getId());
 	}
 
 	// return finished
