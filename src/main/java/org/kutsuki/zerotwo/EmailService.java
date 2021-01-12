@@ -1,5 +1,6 @@
 package org.kutsuki.zerotwo;
 
+import javax.activation.DataSource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
@@ -30,11 +31,16 @@ public class EmailService {
 
     // emailHome
     public void email(String subject, String htmlBody) {
-	email(null, subject, htmlBody);
+	email(null, subject, htmlBody, null);
+    }
+
+    // emailHome
+    public void email(String subject, String htmlBody, DataSource attachment) {
+	email(null, subject, htmlBody, attachment);
     }
 
     // email
-    public void email(String bcc, String subject, String htmlBody) {
+    public void email(String bcc, String subject, String htmlBody, DataSource attachment) {
 	try {
 	    MimeMessage msg = javaMailSender.createMimeMessage();
 	    MimeMessageHelper helper = new MimeMessageHelper(msg, true);
@@ -45,6 +51,10 @@ public class EmailService {
 
 	    if (bcc != null) {
 		helper.setBcc(StringUtils.split(bcc, ','));
+	    }
+
+	    if (attachment != null) {
+		helper.addAttachment(attachment.getName(), attachment);
 	    }
 
 	    javaMailSender.send(msg);

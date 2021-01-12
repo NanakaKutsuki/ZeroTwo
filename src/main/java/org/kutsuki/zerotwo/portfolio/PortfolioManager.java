@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.mail.util.ByteArrayDataSource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.EmailService;
@@ -29,6 +30,7 @@ import org.kutsuki.zerotwo.repository.PortfolioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 public class PortfolioManager {
@@ -38,6 +40,7 @@ public class PortfolioManager {
     private static final String BOLD_CLOSE = "</b>";
     private static final String BOT = "BOT ";
     private static final String BUY = "BUY ";
+    private static final String IMAGE = "image/";
     private static final String NEW = "NEW";
     private static final String PORTFOLIO = "[PORTFOLIO]";
     private static final String SELL = "SELL ";
@@ -84,15 +87,15 @@ public class PortfolioManager {
 	reloadCache();
     }
 
-    public void parseAlert(String escaped) {
-	parseAlert(escaped, false);
+    public void parseMessage(String message, String image) {
+	parseMessage(message, image, false);
     }
 
-    public void parseAlert(String escaped, boolean test) {
+    public void parseMessage(String message, String image, boolean test) {
 	try {
 	    StringBuilder subject = new StringBuilder();
 	    StringBuilder body = new StringBuilder();
-	    body.append(escaped);
+	    body.append(message);
 	    deleteList.clear();
 	    saveList.clear();
 
@@ -108,7 +111,7 @@ public class PortfolioManager {
 		int tradeId = -1;
 		if (StringUtils.startsWith(body, Character.toString('#'))) {
 		    try {
-			String tid = StringUtils.substringBetween(escaped, Character.toString('#'), StringUtils.SPACE);
+			String tid = StringUtils.substringBetween(message, Character.toString('#'), StringUtils.SPACE);
 			tradeId = Integer.parseInt(tid);
 			subject.append('#');
 			subject.append(tradeId);
@@ -117,31 +120,31 @@ public class PortfolioManager {
 		    }
 		}
 
-		if (StringUtils.startsWithIgnoreCase(escaped, UNOFFICIAL)) {
+		if (StringUtils.startsWithIgnoreCase(message, UNOFFICIAL)) {
 		    subject.append(UNOFFICIAL);
 		    unofficial = true;
 		}
 
-		if (StringUtils.containsIgnoreCase(escaped, NEW)) {
+		if (StringUtils.containsIgnoreCase(message, NEW)) {
 		    subject.append(StringUtils.SPACE);
 		    subject.append(NEW);
 		}
 
-		if (StringUtils.containsIgnoreCase(escaped, WORKING)) {
+		if (StringUtils.containsIgnoreCase(message, WORKING)) {
 		    subject.append(StringUtils.SPACE);
 		    subject.append(WORKING);
 		    working = true;
 		}
 
-		if (StringUtils.containsIgnoreCase(escaped, STOP)) {
+		if (StringUtils.containsIgnoreCase(message, STOP)) {
 		    subject.append(StringUtils.SPACE);
 		    subject.append(STOP);
-		    escaped = StringUtils.remove(escaped, STOP);
+		    message = StringUtils.remove(message, STOP);
 		    stop = true;
 		}
 
 		boolean first = true;
-		List<OrderModel> orderList = createOrders(escaped, tradeId);
+		List<OrderModel> orderList = createOrders(message, tradeId);
 		String portfolio = getPortfolio(orderList, tradeId, working || unofficial);
 		for (OrderModel order : orderList) {
 		    if (!first) {
@@ -226,9 +229,18 @@ public class PortfolioManager {
 		body.append(getPortfolio(Collections.emptyList(), -1, false));
 	    }
 
+	    ByteArrayDataSource attachment = null;
+	    if (StringUtils.isNotBlank(image)) {
+		RestTemplate template = new RestTemplate();
+		byte[] response = template.getForObject(image, byte[].class);
+		String type = IMAGE + StringUtils.substringAfterLast(image, '.');
+		attachment = new ByteArrayDataSource(response, type);
+		attachment.setName(StringUtils.substringAfterLast(image, '/'));
+	    }
+
 	    if (!test) {
 		// email alert
-		service.email(emailPortfolio, subject.toString(), body.toString());
+		service.email(emailPortfolio, subject.toString(), body.toString(), attachment);
 
 		// update portfolio repository
 		if (!deleteList.isEmpty()) {
@@ -239,10 +251,10 @@ public class PortfolioManager {
 		    repository.saveAll(saveList);
 		}
 	    } else {
-		service.email(subject.toString(), body.toString());
+		service.email(subject.toString(), body.toString(), attachment);
 	    }
 	} catch (Exception e) {
-	    service.emailException(escaped, e);
+	    service.emailException(message, e);
 	}
     }
 
