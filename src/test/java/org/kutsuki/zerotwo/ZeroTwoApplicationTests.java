@@ -3,6 +3,7 @@ package org.kutsuki.zerotwo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.kutsuki.zerotwo.repository.OpeningsRepository;
+import org.kutsuki.zerotwo.rest.openings.ImagineDragonRest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -12,7 +13,7 @@ public class ZeroTwoApplicationTests {
     private OpeningsRepository repository;
 
     @Autowired
-    private EmailService service;
+    private ImagineDragonRest rest;
 
     @Test
     public void contextLoads() {

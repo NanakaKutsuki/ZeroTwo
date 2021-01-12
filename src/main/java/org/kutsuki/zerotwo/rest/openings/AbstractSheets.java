@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +41,6 @@ public abstract class AbstractSheets extends AbstractChrome {
     private static final String APPLICATION_NAME = "ZeroTwo";
     private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
     private static final String OFFLINE = "offline";
-    private static final String LAST_UPDATED = "Last Updated";
     private static final String TOKENS_DIRECTORY_PATH = "/tokens";
     private static final String USER = "user";
     private static final String USER_ENTERED = "USER_ENTERED";
@@ -70,13 +70,8 @@ public abstract class AbstractSheets extends AbstractChrome {
 	}
     }
 
-    // TODO determine if necessary
-    // protected EmailService getEmailService() {
-    // return service;
-    // }
-
-    protected String getLastUpdated() {
-	return LAST_UPDATED;
+    protected EmailService getEmailService() {
+	return service;
     }
 
     public String getPath() {
@@ -100,6 +95,11 @@ public abstract class AbstractSheets extends AbstractChrome {
 	}
     }
 
+    protected String getLastChecked(String project) {
+	Opening opening = repository.findByProject(project);
+	return opening.getLastChecked();
+    }
+
     protected List<List<Object>> readSheet(String range) {
 	int retries = 0;
 	List<List<Object>> result = null;
@@ -118,6 +118,10 @@ public abstract class AbstractSheets extends AbstractChrome {
 	}
 
 	return result;
+    }
+
+    protected void lastCheckedNow(String project) {
+	setLastChecked(project, LocalDate.now().toString());
     }
 
     protected void setLastChecked(String project, String lastChecked) {
@@ -163,5 +167,25 @@ public abstract class AbstractSheets extends AbstractChrome {
 	LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(PORT).build();
 
 	return new AuthorizationCodeInstalledApp(flow, receiver).authorize(USER);
+    }
+
+    public void printLastChecked() {
+	clearSheet("LastChecked!A2:B");
+	List<List<Object>> writeRowList = new ArrayList<List<Object>>();
+	for (Opening opening : repository.findAll()) {
+	    List<Object> dataList = new ArrayList<Object>();
+	    dataList.add(opening.getProject());
+	    dataList.add(opening.getLastChecked());
+	    writeRowList.add(dataList);
+	}
+
+	List<Object> dataList = new ArrayList<Object>();
+	dataList.add("THIS was last checked");
+	dataList.add(LocalDate.now());
+	writeRowList.add(dataList);
+
+	ValueRange body = new ValueRange();
+	body.setValues(writeRowList);
+	writeSheet("LastChecked!A2", body);
     }
 }

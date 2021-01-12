@@ -1,6 +1,6 @@
 package org.kutsuki.zerotwo.rest.openings;
 
-import java.time.LocalDate;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,7 +8,9 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.rest.post.PostArray;
 import org.kutsuki.zerotwo.rest.post.PostRoadRally;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,17 +21,16 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 @RestController
 public class RoadRallyRest extends AbstractSheets {
     private static final String ROAD_RALLY = "RoadRally";
-    private static final String RANGE = ROAD_RALLY + "!A";
-    private static final String CLEAR_RANGE = RANGE + "2:E";
+    private static final String RANGE = "RoadRally!A";
+    private static final String CLEAR_RANGE = "RoadRally!A2:E";
 
     private int index;
     private int lastIndex;
     private int rowNum;
     private List<String> linkList;
 
-    public void clear() {
-	clearSheet(CLEAR_RANGE);
-    }
+    @Value("${roadrally.link}")
+    private String link;
 
     public RoadRallyRest() {
 	this.linkList = new ArrayList<String>();
@@ -83,22 +84,18 @@ public class RoadRallyRest extends AbstractSheets {
 	rowNum++;
 
 	if (index >= linkList.size()) {
-	    String lastChecked = LocalDate.now().toString();
-	    setLastChecked(ROAD_RALLY, lastChecked);
-
-	    writeRowList = new ArrayList<List<Object>>();
-	    dataList = new ArrayList<Object>();
-	    dataList.add(lastChecked);
-	    dataList.add(getLastUpdated());
-	    writeRowList.add(dataList);
-
-	    body = new ValueRange();
-	    body.setValues(writeRowList);
-	    writeSheet(RANGE + rowNum, body);
-	    rowNum++;
+	    lastCheckedNow(ROAD_RALLY);
 	}
 
 	return ResponseEntity.ok().build();
     }
 
+    @Scheduled(cron = "0 12 6 * * *")
+    public void open() {
+	try {
+	    openChrome(link);
+	} catch (IOException e) {
+	    getEmailService().emailException("Unable to open: " + link, e);
+	}
+    }
 }
