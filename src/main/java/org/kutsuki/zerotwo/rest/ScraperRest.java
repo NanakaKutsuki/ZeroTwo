@@ -13,12 +13,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
-public class ScraperRest {
-    private static final String CHROME = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe";
-    private static final String DEV_TOOLS = "--auto-open-devtools-for-tabs";
-    private static final String INCOGNITO = "--incognito";
-    private static final String TASK_KILL = "taskkill /F /IM chrome.exe /T";
-
+public class ScraperRest extends AbstractChrome {
     @Autowired
     private EmailService service;
 
@@ -43,7 +38,7 @@ public class ScraperRest {
     @GetMapping("/rest/scraper/closeWindows")
     public void closeWindows() {
 	try {
-	    Runtime.getRuntime().exec(TASK_KILL);
+	    taskKillChrome();
 	    hotelOpen = false;
 	    tradingOpen = false;
 	} catch (Exception e) {
@@ -70,7 +65,7 @@ public class ScraperRest {
 
 	    if (StringUtils.isNotEmpty(link)) {
 		try {
-		    Runtime.getRuntime().exec(new String[] { CHROME, INCOGNITO, DEV_TOOLS, link });
+		    openIngcognitoChrome(link);
 		    hotelOpen = true;
 		} catch (Exception e) {
 		    service.emailException("Error opening Hotel Window: " + link, e);
@@ -83,7 +78,7 @@ public class ScraperRest {
     public void openTradingWindow() {
 	if (!tradingOpen) {
 	    try {
-		Runtime.getRuntime().exec(new String[] { CHROME, DEV_TOOLS, shadowLink });
+		openChrome(shadowLink);
 		tradingOpen = true;
 	    } catch (Exception e) {
 		service.emailException("Error opening Trading Window: " + shadowLink, e);

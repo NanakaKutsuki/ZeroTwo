@@ -22,8 +22,8 @@ public class RoadRallyRest extends AbstractSheets {
     private static final String RANGE = ROAD_RALLY + "!A";
     private static final String CLEAR_RANGE = RANGE + "2:E";
 
-    private boolean footer;
     private int index;
+    private int lastIndex;
     private int rowNum;
     private List<String> linkList;
 
@@ -33,8 +33,8 @@ public class RoadRallyRest extends AbstractSheets {
 
     public RoadRallyRest() {
 	this.linkList = new ArrayList<String>();
-	this.footer = false;
 	this.index = 0;
+	this.lastIndex = -1;
 	this.rowNum = 2;
     }
 
@@ -42,25 +42,9 @@ public class RoadRallyRest extends AbstractSheets {
     public String getNextLink() {
 	String link = StringUtils.EMPTY;
 
-	if (index < linkList.size()) {
+	if (index < linkList.size() && index != lastIndex) {
 	    link = linkList.get(index);
-	    index++;
-	} else if (index >= linkList.size() && !footer) {
-	    String lastChecked = LocalDate.now().toString();
-	    setLastChecked(ROAD_RALLY, lastChecked);
-
-	    List<List<Object>> writeRowList = new ArrayList<List<Object>>();
-	    List<Object> dataList = new ArrayList<Object>();
-	    dataList.add(lastChecked);
-	    dataList.add(getLastUpdated());
-	    writeRowList.add(dataList);
-
-	    ValueRange body = new ValueRange();
-	    body.setValues(writeRowList);
-	    writeSheet(RANGE + rowNum, body);
-	    rowNum++;
-
-	    footer = true;
+	    lastIndex = index;
 	} else if (index >= linkList.size()) {
 	    link = Character.toString('X');
 	}
@@ -73,8 +57,8 @@ public class RoadRallyRest extends AbstractSheets {
 	if (postData != null) {
 	    this.linkList = Arrays.asList(postData.getData());
 	    this.index = 0;
+	    this.lastIndex = -1;
 	    this.rowNum = 2;
-	    this.footer = false;
 	    clearSheet(CLEAR_RANGE);
 	}
 
@@ -95,7 +79,24 @@ public class RoadRallyRest extends AbstractSheets {
 	ValueRange body = new ValueRange();
 	body.setValues(writeRowList);
 	writeSheet(RANGE + rowNum, body);
+	index++;
 	rowNum++;
+
+	if (index >= linkList.size()) {
+	    String lastChecked = LocalDate.now().toString();
+	    setLastChecked(ROAD_RALLY, lastChecked);
+
+	    writeRowList = new ArrayList<List<Object>>();
+	    dataList = new ArrayList<Object>();
+	    dataList.add(lastChecked);
+	    dataList.add(getLastUpdated());
+	    writeRowList.add(dataList);
+
+	    body = new ValueRange();
+	    body.setValues(writeRowList);
+	    writeSheet(RANGE + rowNum, body);
+	    rowNum++;
+	}
 
 	return ResponseEntity.ok().build();
     }

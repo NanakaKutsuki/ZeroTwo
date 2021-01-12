@@ -12,6 +12,7 @@ import java.util.List;
 import org.kutsuki.zerotwo.EmailService;
 import org.kutsuki.zerotwo.document.Opening;
 import org.kutsuki.zerotwo.repository.OpeningsRepository;
+import org.kutsuki.zerotwo.rest.AbstractChrome;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,7 +34,7 @@ import com.google.api.services.sheets.v4.model.ClearValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 @Component
-public abstract class AbstractSheets {
+public abstract class AbstractSheets extends AbstractChrome {
     private static final int PORT = 8888;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final String APPLICATION_NAME = "ZeroTwo";
@@ -53,10 +54,10 @@ public abstract class AbstractSheets {
     @Autowired
     private OpeningsRepository repository;
 
-    @Value("${vacancies.path}")
+    @Value("${sheets.path}")
     private String path;
 
-    @Value("${vacancies.sheetId}")
+    @Value("${sheets.sheetId}")
     private String sheetId;
 
     public AbstractSheets() {
@@ -69,6 +70,7 @@ public abstract class AbstractSheets {
 	}
     }
 
+    // TODO determine if necessary
     // protected EmailService getEmailService() {
     // return service;
     // }
