@@ -2,8 +2,8 @@ package org.kutsuki.zerotwo;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.kutsuki.zerotwo.portfolio.PortfolioManager;
 import org.kutsuki.zerotwo.repository.OpeningRepository;
-import org.kutsuki.zerotwo.rest.openings.OpeningRest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -13,16 +13,13 @@ public class ZeroTwoApplicationTests {
     private OpeningRepository repository;
 
     @Autowired
-    private OpeningRest rest;
+    private PortfolioManager manager;
 
     @Test
     public void contextLoads() {
-	// boolean test = true;
-	// String escaped = "#522 FILLED BOT 2 BUTTERFLY SPX 100 15 JAN 21 [AM]
-	// 3645/3630/3600 PUT @-.40cr CBOE";
-	// manager.parseAlert(escaped, "", test);
-
-	rest.writeLastChecked();
+	boolean test = true;
+	String msg = "#527 FILLED BOT +1 BUTTERFLY RIOT 22 JAN 21 25/30/35 CALL @.65 ISE";
+	manager.parseMessage(msg, "", test);
 
 	Assertions.assertTrue(repository.count() > 0, "Should be stuff in the database");
     }

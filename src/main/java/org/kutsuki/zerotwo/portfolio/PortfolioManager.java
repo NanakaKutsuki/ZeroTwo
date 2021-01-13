@@ -130,7 +130,7 @@ public class PortfolioManager {
 		    subject.append(NEW);
 		}
 
-		if (StringUtils.containsIgnoreCase(message, WORKING)) {
+		if (StringUtils.containsIgnoreCase(StringUtils.substring(message, 0, 25), WORKING)) {
 		    subject.append(StringUtils.SPACE);
 		    subject.append(WORKING);
 		    working = true;
