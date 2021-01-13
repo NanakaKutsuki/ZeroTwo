@@ -1,7 +1,9 @@
 package org.kutsuki.zerotwo;
 
+import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +21,8 @@ public class EmailService {
     private static final String EMSP = "&emsp;";
     private static final String EXCEPTION_SUBJECT = "Exception Thrown";
     private static final String LINE_BREAK = "<br/>";
+    private static final String IMAGE = "<br/><br/><img src=\"cid:";
+    private static final String IMAGE_END = "\"/>";
 
     @Value("${spring.mail.username}")
     private String from;
@@ -35,26 +39,35 @@ public class EmailService {
     }
 
     // emailHome
-    public void email(String subject, String htmlBody, DataSource attachment) {
-	email(null, subject, htmlBody, attachment);
+    public void email(String subject, String htmlBody, DataSource inlineImage) {
+	email(null, subject, htmlBody, inlineImage);
     }
 
     // email
-    public void email(String bcc, String subject, String htmlBody, DataSource attachment) {
+    public void email(String bcc, String subject, String htmlBody, DataSource inlineImage) {
 	try {
 	    MimeMessage msg = javaMailSender.createMimeMessage();
 	    MimeMessageHelper helper = new MimeMessageHelper(msg, true);
 	    helper.setFrom(from);
 	    helper.setTo(home);
 	    helper.setSubject(subject);
-	    helper.setText(htmlBody, true);
 
 	    if (bcc != null) {
 		helper.setBcc(StringUtils.split(bcc, ','));
 	    }
 
-	    if (attachment != null) {
-		helper.addAttachment(attachment.getName(), attachment);
+	    if (inlineImage != null) {
+		htmlBody += IMAGE + inlineImage.getName() + IMAGE_END;
+		helper.setText(htmlBody, true);
+
+		MimeBodyPart mimeBodyPart = new MimeBodyPart();
+		mimeBodyPart.setDisposition(MimeBodyPart.INLINE);
+		mimeBodyPart.setContentID('<' + inlineImage.getName() + '>');
+		mimeBodyPart.setDataHandler(new DataHandler(inlineImage));
+		mimeBodyPart.setFileName(inlineImage.getName());
+		helper.getMimeMultipart().addBodyPart(mimeBodyPart);
+	    } else {
+		helper.setText(htmlBody, true);
 	    }
 
 	    javaMailSender.send(msg);
