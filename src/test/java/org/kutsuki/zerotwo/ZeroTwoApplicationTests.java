@@ -2,18 +2,18 @@ package org.kutsuki.zerotwo;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.kutsuki.zerotwo.repository.OpeningsRepository;
-import org.kutsuki.zerotwo.rest.openings.EitoRest;
+import org.kutsuki.zerotwo.repository.OpeningRepository;
+import org.kutsuki.zerotwo.rest.openings.OpeningRest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class ZeroTwoApplicationTests {
     @Autowired
-    private OpeningsRepository repository;
+    private OpeningRepository repository;
 
     @Autowired
-    private EitoRest rest;
+    private OpeningRest rest;
 
     @Test
     public void contextLoads() {
@@ -22,7 +22,7 @@ public class ZeroTwoApplicationTests {
 	// 3645/3630/3600 PUT @-.40cr CBOE";
 	// manager.parseAlert(escaped, "", test);
 
-	rest.printLastChecked();
+	rest.writeLastChecked();
 
 	Assertions.assertTrue(repository.count() > 0, "Should be stuff in the database");
     }

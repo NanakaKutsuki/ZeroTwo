@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.kutsuki.zerotwo.NtlmAuthenticator;
 import org.kutsuki.zerotwo.document.Account;
 import org.kutsuki.zerotwo.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +40,9 @@ public class EitoRest extends AbstractSheets {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private OpeningRest openingRest;
+
     @Value("${eito.link}")
     private String link;
 
@@ -63,13 +66,13 @@ public class EitoRest extends AbstractSheets {
 	filename = StringUtils.substringBeforeLast(filename, Character.toString('.'));
 
 	LocalDate date = LocalDate.parse(filename, DTF);
-	LocalDate lastDate = LocalDate.parse(getLastChecked(EITO));
+	LocalDate lastDate = LocalDate.parse(openingRest.getLastChecked(EITO));
 
 	if (date.isAfter(lastDate)) {
 	    byte[] byteResponse = restTemplate.getForObject(link + ATTACHMENTS + xlsx, byte[].class);
 	    InputStream is = new ByteArrayInputStream(byteResponse);
 	    parseWorkbook(is);
-	    setLastChecked(EITO, date.toString());
+	    openingRest.setLastChecked(EITO, date.toString());
 	}
 
 	Authenticator.setDefault(null);
@@ -108,22 +111,6 @@ public class EitoRest extends AbstractSheets {
 	    workbook.close();
 	} catch (IOException e) {
 	    getEmailService().emailException("Error with EITO Workbook! ", e);
-	}
-    }
-
-    public class NtlmAuthenticator extends Authenticator {
-	private final String username;
-	private final char[] password;
-
-	public NtlmAuthenticator(final String username, final String password) {
-	    super();
-	    this.username = username;
-	    this.password = password.toCharArray();
-	}
-
-	@Override
-	public PasswordAuthentication getPasswordAuthentication() {
-	    return (new PasswordAuthentication(username, password));
 	}
     }
 }

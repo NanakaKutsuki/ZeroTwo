@@ -6,17 +6,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.kutsuki.zerotwo.EmailService;
-import org.kutsuki.zerotwo.document.Opening;
-import org.kutsuki.zerotwo.repository.OpeningsRepository;
 import org.kutsuki.zerotwo.rest.AbstractChrome;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -34,7 +30,6 @@ import com.google.api.services.sheets.v4.model.ClearValuesRequest;
 import com.google.api.services.sheets.v4.model.ClearValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
-@Component
 public abstract class AbstractSheets extends AbstractChrome {
     private static final int PORT = 8888;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -50,9 +45,6 @@ public abstract class AbstractSheets extends AbstractChrome {
 
     @Autowired
     private EmailService service;
-
-    @Autowired
-    private OpeningsRepository repository;
 
     @Value("${sheets.path}")
     private String path;
@@ -95,11 +87,6 @@ public abstract class AbstractSheets extends AbstractChrome {
 	}
     }
 
-    protected String getLastChecked(String project) {
-	Opening opening = repository.findByProject(project);
-	return opening.getLastChecked();
-    }
-
     protected List<List<Object>> readSheet(String range) {
 	int retries = 0;
 	List<List<Object>> result = null;
@@ -118,16 +105,6 @@ public abstract class AbstractSheets extends AbstractChrome {
 	}
 
 	return result;
-    }
-
-    protected void lastCheckedNow(String project) {
-	setLastChecked(project, LocalDate.now().toString());
-    }
-
-    protected void setLastChecked(String project, String lastChecked) {
-	Opening opening = repository.findByProject(project);
-	opening.setLastChecked(lastChecked);
-	repository.save(opening);
     }
 
     protected void writeSheet(String range, ValueRange body) {
@@ -167,27 +144,5 @@ public abstract class AbstractSheets extends AbstractChrome {
 	LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(PORT).build();
 
 	return new AuthorizationCodeInstalledApp(flow, receiver).authorize(USER);
-    }
-
-    public void printLastChecked() {
-	clearSheet("LastChecked!A2:B");
-	List<List<Object>> writeRowList = new ArrayList<List<Object>>();
-	for (Opening opening : repository.findAll()) {
-	    if (!opening.getProject().equals("Shadow")) {
-		List<Object> dataList = new ArrayList<Object>();
-		dataList.add(opening.getProject());
-		dataList.add(opening.getLastChecked());
-		writeRowList.add(dataList);
-	    }
-	}
-
-	List<Object> dataList = new ArrayList<Object>();
-	dataList.add("THIS was last checked");
-	dataList.add(LocalDate.now().toString());
-	writeRowList.add(dataList);
-
-	ValueRange body = new ValueRange();
-	body.setValues(writeRowList);
-	writeSheet("LastChecked!A2", body);
     }
 }

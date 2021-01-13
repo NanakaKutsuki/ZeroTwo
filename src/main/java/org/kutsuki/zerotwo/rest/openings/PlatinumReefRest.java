@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.rest.post.PostTuple;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,8 +23,20 @@ public class PlatinumReefRest extends AbstractSheets {
     private static final String RANGE = "PlatinumReef!A";
     private static final String CLEAR_RANGE = "PlatinumReef!A:A";
 
+    @Autowired
+    private OpeningRest openingRest;
+
     @Value("${platinumreef.link}")
     private String link;
+
+    @Scheduled(cron = "0 12 6 * * *")
+    public void openBrowser() {
+	try {
+	    openChrome(link);
+	} catch (IOException e) {
+	    getEmailService().emailException("Unable to open: " + link, e);
+	}
+    }
 
     @GetMapping("/rest/platinumReef/clear")
     public ResponseEntity<String> clear() {
@@ -35,7 +48,7 @@ public class PlatinumReefRest extends AbstractSheets {
     public ResponseEntity<String> addOpening(@RequestBody PostTuple postData) {
 	String opening = postData.getData();
 	if (StringUtils.equals(opening, Character.toString('X'))) {
-	    lastCheckedNow(PLATINUM_REEF);
+	    openingRest.setLastCheckedNow(PLATINUM_REEF);
 	}
 
 	List<List<Object>> writeRowList = new ArrayList<List<Object>>();
@@ -47,20 +60,5 @@ public class PlatinumReefRest extends AbstractSheets {
 	body.setValues(writeRowList);
 	writeSheet(RANGE + postData.getId(), body);
 	return ResponseEntity.ok().build();
-    }
-
-    @Scheduled(cron = "0 6 6 * * *")
-    public void open() {
-	try {
-	    openChrome(link);
-	} catch (IOException e) {
-	    getEmailService().emailException("Unable to open: " + link, e);
-	}
-    }
-
-    @Scheduled(cron = "0 0 0 * * *")
-    public void print() {
-	// TODO find a better spot
-	printLastChecked();
     }
 }

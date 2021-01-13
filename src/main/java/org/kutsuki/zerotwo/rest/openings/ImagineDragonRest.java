@@ -47,13 +47,16 @@ public class ImagineDragonRest extends AbstractSheets {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private OpeningRest openingRest;
+
     @Value("${imaginedragon.host}")
     private String host;
 
     @Value("${imaginedragon.port}")
     private String port;
 
-    @Scheduled(cron = "0 0 6 * * *")
+    @Scheduled(cron = "0 9 6 * * *")
     public void parseEmail() {
 	try {
 	    Properties properties = new Properties();
@@ -102,11 +105,11 @@ public class ImagineDragonRest extends AbstractSheets {
 		    filename = StringUtils.substringBeforeLast(filename, Character.toString('.'));
 
 		    LocalDate date = LocalDate.parse(filename, DTF);
-		    LocalDate lastDate = LocalDate.parse(getLastChecked(IMAGINE_DRAGON));
+		    LocalDate lastDate = LocalDate.parse(openingRest.getLastChecked(IMAGINE_DRAGON));
 
 		    if (date.isAfter(lastDate)) {
 			parseWorkbook(bodyPart.getInputStream());
-			setLastChecked(IMAGINE_DRAGON, date.toString());
+			openingRest.setLastChecked(IMAGINE_DRAGON, date.toString());
 		    }
 
 		    found = true;

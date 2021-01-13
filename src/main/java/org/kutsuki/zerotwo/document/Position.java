@@ -7,9 +7,11 @@ import java.time.format.DateTimeFormatter;
 import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.portfolio.OptionType;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@Document
 public class Position extends AbstractDocument implements Comparable<Position> {
     private static final DateTimeFormatter SYMBOL_DTF = DateTimeFormatter.ofPattern("yyMMdd");
     private static final DateTimeFormatter ORDER_DTF = DateTimeFormatter.ofPattern("d MMM yy");

@@ -7,7 +7,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.codec.binary.StringUtils;
 import org.kutsuki.zerotwo.document.Opening;
 import org.kutsuki.zerotwo.portfolio.PortfolioManager;
-import org.kutsuki.zerotwo.repository.OpeningsRepository;
+import org.kutsuki.zerotwo.repository.OpeningRepository;
 import org.kutsuki.zerotwo.rest.post.PostShadow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +22,7 @@ public class PortfolioRest {
     private static final String SHADOW = "Shadow";
 
     @Autowired
-    private OpeningsRepository alertRepository;
+    private OpeningRepository alertRepository;
 
     @Autowired
     private PortfolioManager manager;

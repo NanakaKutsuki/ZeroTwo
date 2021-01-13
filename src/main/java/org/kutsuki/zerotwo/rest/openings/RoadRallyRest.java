@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.rest.post.PostArray;
 import org.kutsuki.zerotwo.rest.post.PostRoadRally;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,6 +30,9 @@ public class RoadRallyRest extends AbstractSheets {
     private int rowNum;
     private List<String> linkList;
 
+    @Autowired
+    private OpeningRest openingRest;
+
     @Value("${roadrally.link}")
     private String link;
 
@@ -37,6 +41,15 @@ public class RoadRallyRest extends AbstractSheets {
 	this.index = 0;
 	this.lastIndex = -1;
 	this.rowNum = 2;
+    }
+
+    @Scheduled(cron = "0 15 6 * * *")
+    public void openBrowser() {
+	try {
+	    openChrome(link);
+	} catch (IOException e) {
+	    getEmailService().emailException("Unable to open: " + link, e);
+	}
     }
 
     @GetMapping("rest/roadrally/getNextLink")
@@ -84,18 +97,9 @@ public class RoadRallyRest extends AbstractSheets {
 	rowNum++;
 
 	if (index >= linkList.size()) {
-	    lastCheckedNow(ROAD_RALLY);
+	    openingRest.setLastCheckedNow(ROAD_RALLY);
 	}
 
 	return ResponseEntity.ok().build();
-    }
-
-    @Scheduled(cron = "0 12 6 * * *")
-    public void open() {
-	try {
-	    openChrome(link);
-	} catch (IOException e) {
-	    getEmailService().emailException("Unable to open: " + link, e);
-	}
     }
 }

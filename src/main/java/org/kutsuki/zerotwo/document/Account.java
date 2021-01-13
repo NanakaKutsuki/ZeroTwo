@@ -1,5 +1,8 @@
 package org.kutsuki.zerotwo.document;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document
 public class Account extends AbstractDocument {
     private String project;
     private String username;
