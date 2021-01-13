@@ -49,7 +49,7 @@ public class PlatinumReefRest extends AbstractSheets {
 	return ResponseEntity.ok().build();
     }
 
-    @Scheduled(cron = "0 5 6 * * *")
+    @Scheduled(cron = "0 6 6 * * *")
     public void open() {
 	try {
 	    openChrome(link);

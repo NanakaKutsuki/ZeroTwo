@@ -173,15 +173,17 @@ public abstract class AbstractSheets extends AbstractChrome {
 	clearSheet("LastChecked!A2:B");
 	List<List<Object>> writeRowList = new ArrayList<List<Object>>();
 	for (Opening opening : repository.findAll()) {
-	    List<Object> dataList = new ArrayList<Object>();
-	    dataList.add(opening.getProject());
-	    dataList.add(opening.getLastChecked());
-	    writeRowList.add(dataList);
+	    if (!opening.getProject().equals("Shadow")) {
+		List<Object> dataList = new ArrayList<Object>();
+		dataList.add(opening.getProject());
+		dataList.add(opening.getLastChecked());
+		writeRowList.add(dataList);
+	    }
 	}
 
 	List<Object> dataList = new ArrayList<Object>();
 	dataList.add("THIS was last checked");
-	dataList.add(LocalDate.now());
+	dataList.add(LocalDate.now().toString());
 	writeRowList.add(dataList);
 
 	ValueRange body = new ValueRange();
