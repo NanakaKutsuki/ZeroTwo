@@ -8,27 +8,37 @@ import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.document.Position;
 
 public class OrderModel {
+    private boolean stop;
     private BigDecimal priceBD;
     private List<Position> positionList;
+    private int condition;
     private String price;
     private String spread;
 
-    public OrderModel(String spread, BigDecimal priceBD, String price) {
+    public OrderModel(String spread, BigDecimal priceBD, String price, boolean stop, BigDecimal condition) {
+	this.condition = condition.compareTo(BigDecimal.ZERO);
 	this.positionList = new ArrayList<Position>();
-	this.price = price;
 	this.priceBD = priceBD;
 	this.spread = spread;
-    }
+	this.stop = stop;
 
-    @Override
-    public String toString() {
-	StringBuilder sb = new StringBuilder();
-
-	return sb.toString();
+	if (this.condition == 0) {
+	    this.price = price;
+	} else {
+	    this.price = priceBD.toString();
+	}
     }
 
     public void addPosition(Position model) {
 	positionList.add(model);
+    }
+
+    public boolean isStop() {
+	return stop;
+    }
+
+    public int getCondition() {
+	return condition;
     }
 
     public List<Position> getPositionList() {

@@ -12,18 +12,17 @@ public class VerticalSpread extends AbstractSpread {
     private static final String VERTICAL = "VERTICAL";
 
     @Override
-    public OrderModel parseOrder(String[] split, int tradeId, boolean am) throws Exception {
-	int quantity = parseQuantity(split[0]);
-	String symbol = parseSymbol(split[2]);
+    protected OrderModel parseOrder(List<String> dataList, int tradeId, boolean am, boolean stop, BigDecimal condition)
+	    throws Exception {
+	int quantity = parseQuantity(dataList.get(0));
+	// dataList.get(1) = VERTICAL
+	String symbol = parseSymbol(dataList.get(2));
+	LocalDate expiry = parseExpiry(dataList.get(3), dataList.get(4), dataList.get(5));
+	List<BigDecimal> strikeList = parseSlashesBD(dataList.get(6));
+	OptionType type = parseType(dataList.get(7));
+	BigDecimal price = parsePrice(dataList.get(8), condition);
 
-	int i = startIndex(split, 3);
-
-	LocalDate expiry = parseExpiry(split[3 + i], split[4 + i], split[5 + i]);
-	List<BigDecimal> strikeList = parseSlashesBD(split[6 + i]);
-	OptionType type = parseType(split[7 + i]);
-	BigDecimal price = parsePrice(split[8 + i]);
-
-	OrderModel order = new OrderModel(getSpread(), price, split[8 + i]);
+	OrderModel order = new OrderModel(getSpread(), price, dataList.get(8), stop, condition);
 	order.addPosition(new Position(tradeId, quantity, symbol, expiry, am, strikeList.get(0), type));
 	order.addPosition(new Position(tradeId, -quantity, symbol, expiry, am, strikeList.get(1), type));
 

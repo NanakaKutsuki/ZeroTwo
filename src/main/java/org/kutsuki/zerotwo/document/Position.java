@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.portfolio.OptionType;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,21 +14,19 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Position extends AbstractDocument implements Comparable<Position> {
     private static final DateTimeFormatter SYMBOL_DTF = DateTimeFormatter.ofPattern("yyMMdd");
     private static final DateTimeFormatter ORDER_DTF = DateTimeFormatter.ofPattern("d MMM yy");
+    private static final String BUY = "BUY";
     private static final String MARK = "<mark><b>";
     private static final String MARK_CLOSE = "</b></mark>";
+    private static final String SELL = "SELL";
 
     private int tradeId;
     private int quantity;
     private String symbol;
     private LocalDate expiry;
-    private boolean am;
+    private boolean am; // SPX(W)
     private BigDecimal strike;
     private OptionType type;
     private String fullSymbol;
-
-    @Transient
-    @JsonIgnore
-    private transient String side;
 
     public Position(int tradeId, int quantity, String symbol, LocalDate expiry, boolean am, BigDecimal strike,
 	    OptionType type) {
@@ -75,7 +72,7 @@ public class Position extends AbstractDocument implements Comparable<Position> {
     @JsonIgnore
     public String getOrder() {
 	StringBuilder sb = new StringBuilder();
-	sb.append(getSide());
+	sb.append(getQuantity() < 0 ? SELL : BUY);
 	sb.append(StringUtils.SPACE);
 
 	if (getQuantity() > 0) {
@@ -148,10 +145,6 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	return quantity;
     }
 
-    public String getSide() {
-	return side;
-    }
-
     public String getSymbol() {
 	return symbol;
     }
@@ -178,10 +171,6 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 
     public void setQuantity(int quantity) {
 	this.quantity = quantity;
-    }
-
-    public void setSide(String side) {
-	this.side = side;
     }
 
     public void setTradeId(int tradeId) {

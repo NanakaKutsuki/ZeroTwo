@@ -12,19 +12,18 @@ public class UnbalancedButterflySpread extends AbstractSpread {
     private static final String UNBALANCED_BUTTERFLY = "~BUTTERFLY";
 
     @Override
-    public OrderModel parseOrder(String[] split, int tradeId, boolean am) throws Exception {
-	int quantity = parseQuantity(split[0]);
-	List<BigDecimal> ratioList = parseSlashesBD(split[1]);
-	String symbol = parseSymbol(split[3]);
+    protected OrderModel parseOrder(List<String> dataList, int tradeId, boolean am, boolean stop, BigDecimal condition)
+	    throws Exception {
+	int quantity = parseQuantity(dataList.get(0));
+	List<BigDecimal> ratioList = parseSlashesBD(dataList.get(1));
+	// dataList.get(2) = ~BUTTERFLY
+	String symbol = parseSymbol(dataList.get(3));
+	LocalDate expiry = parseExpiry(dataList.get(4), dataList.get(5), dataList.get(6));
+	List<BigDecimal> strikeList = parseSlashesBD(dataList.get(7));
+	OptionType type = parseType(dataList.get(8));
+	BigDecimal price = parsePrice(dataList.get(9), condition);
 
-	int i = startIndex(split, 4);
-
-	LocalDate expiry = parseExpiry(split[4 + i], split[5 + i], split[6 + i]);
-	List<BigDecimal> strikeList = parseSlashesBD(split[7 + i]);
-	OptionType type = parseType(split[8 + i]);
-	BigDecimal price = parsePrice(split[9 + i]);
-
-	OrderModel order = new OrderModel(getSpread(), price, split[9 + i]);
+	OrderModel order = new OrderModel(getSpread(), price, dataList.get(9), stop, condition);
 	int qty1 = quantity * ratioList.get(0).intValue();
 	order.addPosition(new Position(tradeId, qty1, symbol, expiry, am, strikeList.get(0), type));
 	int qty2 = -quantity * ratioList.get(1).intValue();

@@ -17,13 +17,37 @@ import org.kutsuki.zerotwo.portfolio.OrderModel;
 public abstract class AbstractSpread {
     private static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder().parseCaseInsensitive()
 	    .appendPattern("d MMM yy").toFormatter(Locale.ENGLISH);
-    private static final String HUNDRED = "100";
-    private static final String QUARTERLYS = "(Quarterlys)";
-    private static final String WEEKLYS = "(Weeklys)";
+    private static final String AM = "[AM]";
+    private static final String STOP = "STP";
+    private static final String WHEN = "WHEN";
+    private static final String MARK_AT_OR_ABOVE = "MARK AT OR ABOVE ";
+    private static final String MARK_AT_OR_BELOW = "MARK AT OR BELOW ";
 
     public abstract String getSpread();
 
-    public abstract OrderModel parseOrder(String[] split, int tradeId, boolean am) throws Exception;
+    protected abstract OrderModel parseOrder(List<String> dataList, int tradeId, boolean am, boolean stop,
+	    BigDecimal condition) throws Exception;
+
+    public OrderModel parseOrder(String split, int tradeId) throws Exception {
+	BigDecimal condition = BigDecimal.ZERO;
+	if (StringUtils.containsIgnoreCase(split, WHEN)) {
+	    if (StringUtils.containsIgnoreCase(split, MARK_AT_OR_ABOVE)) {
+		String price = StringUtils.substringAfter(split, MARK_AT_OR_ABOVE);
+		price = StringUtils.substringBefore(price, StringUtils.SPACE);
+		condition = parsePrice(price, BigDecimal.ZERO);
+	    } else if (StringUtils.containsIgnoreCase(split, MARK_AT_OR_BELOW)) {
+		String price = StringUtils.substringAfter(split, MARK_AT_OR_BELOW);
+		price = StringUtils.substringBefore(price, StringUtils.SPACE);
+		condition = parsePrice(price, BigDecimal.ZERO).negate();
+	    }
+	}
+
+	List<String> dataList = new ArrayList<String>(Arrays.asList(StringUtils.split(split, StringUtils.SPACE)));
+	boolean am = dataList.remove(AM);
+	boolean stop = dataList.remove(STOP);
+
+	return parseOrder(dataList, tradeId, am, stop, condition);
+    }
 
     protected LocalDate parseExpiry(String day, String month, String year) throws Exception {
 	LocalDate exp = null;
@@ -38,17 +62,20 @@ public abstract class AbstractSpread {
 	return exp;
     }
 
-    protected BigDecimal parsePrice(String val) throws Exception {
-	BigDecimal price = null;
+    protected BigDecimal parsePrice(String val, BigDecimal condition) throws Exception {
+	BigDecimal price = condition.abs();
 
-	if (!StringUtils.contains(val, '@') || !StringUtils.contains(val, '.')) {
-	    throw new Exception("Missing @ or . from price: " + val);
+	if (!StringUtils.contains(val, '.') && condition.compareTo(BigDecimal.ZERO) == 0) {
+	    throw new Exception("Missing . from price: " + val);
 	}
 
 	try {
-	    price = new BigDecimal(StringUtils.substring(val, 1, StringUtils.indexOf(val, '.') + 3));
+	    val = StringUtils.remove(val, '@');
+	    price = new BigDecimal(StringUtils.substring(val, 0, StringUtils.indexOf(val, '.') + 3));
 	} catch (NumberFormatException e) {
-	    throw new Exception("Error parsing price: " + val, e);
+	    if (condition.compareTo(BigDecimal.ZERO) == 0) {
+		throw new Exception("Error parsing price: " + val + " condition: " + condition, e);
+	    }
 	}
 
 	return price;
@@ -89,7 +116,7 @@ public abstract class AbstractSpread {
     }
 
     protected String parseSymbol(String symbol) throws Exception {
-	if (StringUtils.length(symbol) > 6 || StringUtils.length(symbol) == 0) {
+	if (StringUtils.length(symbol) == 0) {
 	    throw new Exception("Error parsing symbol: " + symbol);
 	}
 
@@ -111,20 +138,5 @@ public abstract class AbstractSpread {
 	}
 
 	return slashList;
-    }
-
-    protected int startIndex(String[] split, int start) {
-	int i = 0;
-	if (StringUtils.equalsIgnoreCase(split[start], HUNDRED)) {
-	    i++;
-	}
-
-	if (StringUtils.equalsIgnoreCase(split[start + 1], QUARTERLYS)) {
-	    i++;
-	} else if (StringUtils.equalsIgnoreCase(split[start + 1], WEEKLYS)) {
-	    i++;
-	}
-
-	return i;
     }
 }

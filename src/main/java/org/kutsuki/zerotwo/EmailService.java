@@ -21,7 +21,7 @@ public class EmailService {
     private static final String EMSP = "&emsp;";
     private static final String EXCEPTION_SUBJECT = "Exception Thrown";
     private static final String LINE_BREAK = "<br/>";
-    private static final String IMAGE = "<br/><br/><img src=\"cid:";
+    private static final String IMAGE = "<img src=\"cid:";
     private static final String IMAGE_END = "\"/>";
 
     @Value("${spring.mail.username}")
@@ -57,8 +57,19 @@ public class EmailService {
 	    }
 
 	    if (inlineImage != null) {
-		htmlBody += IMAGE + inlineImage.getName() + IMAGE_END;
-		helper.setText(htmlBody, true);
+		StringBuilder sb = new StringBuilder();
+		if (StringUtils.isNotBlank(htmlBody)) {
+		    sb.append(htmlBody);
+		    sb.append(LINE_BREAK);
+		    sb.append(LINE_BREAK);
+		}
+
+		sb.append(IMAGE);
+		sb.append(inlineImage.getName());
+		sb.append(IMAGE_END);
+
+		// text needs to be set first before inline
+		helper.setText(sb.toString(), true);
 
 		MimeBodyPart mimeBodyPart = new MimeBodyPart();
 		mimeBodyPart.setDisposition(MimeBodyPart.INLINE);

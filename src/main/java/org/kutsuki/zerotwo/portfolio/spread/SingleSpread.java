@@ -2,6 +2,7 @@ package org.kutsuki.zerotwo.portfolio.spread;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.kutsuki.zerotwo.document.Position;
 import org.kutsuki.zerotwo.portfolio.OptionType;
@@ -11,26 +12,24 @@ public class SingleSpread extends AbstractSpread {
     private static final String SINGLE = "SINGLE";
 
     @Override
-    public String getSpread() {
-	return SINGLE;
-    }
+    protected OrderModel parseOrder(List<String> dataList, int tradeId, boolean am, boolean stop, BigDecimal condition)
+	    throws Exception {
+	int quantity = parseQuantity(dataList.get(0));
+	String symbol = parseSymbol(dataList.get(1));
+	LocalDate expiry = parseExpiry(dataList.get(2), dataList.get(3), dataList.get(4));
+	BigDecimal strike = parseStrike(dataList.get(5));
+	OptionType type = parseType(dataList.get(6));
+	BigDecimal price = parsePrice(dataList.get(7), condition);
 
-    @Override
-    public OrderModel parseOrder(String[] split, int tradeId, boolean am) throws Exception {
-	int quantity = parseQuantity(split[0]);
-	String symbol = parseSymbol(split[1]);
-
-	int i = startIndex(split, 2);
-
-	LocalDate expiry = parseExpiry(split[2 + i], split[3 + i], split[4 + i]);
-	BigDecimal strike = parseStrike(split[5 + i]);
-	OptionType type = parseType(split[6 + i]);
-	BigDecimal price = parsePrice(split[7 + i]);
-
-	OrderModel order = new OrderModel(type.toString(), price, split[7 + i]);
+	OrderModel order = new OrderModel(type.toString(), price, dataList.get(7), stop, condition);
 	order.addPosition(new Position(tradeId, quantity, symbol, expiry, am, strike, type));
 
 	return order;
+    }
+
+    @Override
+    public String getSpread() {
+	return SINGLE;
     }
 
 }
