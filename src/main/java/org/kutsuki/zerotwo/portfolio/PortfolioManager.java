@@ -216,22 +216,12 @@ public class PortfolioManager {
 		// service.emailException(message, e);
 	    }
 
-	    // append portfolio
-	    body.append(service.getLineBreak());
-	    body.append(service.getLineBreak());
-	    body.append(getPortfolio(tradeId));
-
 	    subject.append(StringUtils.SPACE);
 	    subject.append(LocalTime.now().format(TIME_FORMATTER));
-	} else
-
-	{
+	} else {
 	    subject.append(ST_WEEKLY);
 	    subject.append(StringUtils.SPACE);
 	    subject.append(LocalTime.now().format(TIME_FORMATTER));
-	    body.append(service.getLineBreak());
-	    body.append(service.getLineBreak());
-	    body.append(getPortfolio(tradeId));
 	}
 
 	ByteArrayDataSource attachment = null;
@@ -241,7 +231,17 @@ public class PortfolioManager {
 	    String type = IMAGE + StringUtils.substringAfterLast(image, '.');
 	    attachment = new ByteArrayDataSource(response, type);
 	    attachment.setName(StringUtils.substringAfterLast(image, '/'));
+
+	    body.append(service.getLineBreak());
+	    body.append(service.getImageCid());
+	    body.append(attachment.getName());
+	    body.append(service.getImageEnd());
 	}
+
+	// append portfolio
+	body.append(service.getLineBreak());
+	body.append(service.getLineBreak());
+	body.append(getPortfolio(tradeId));
 
 	if (!test) {
 	    // email alert

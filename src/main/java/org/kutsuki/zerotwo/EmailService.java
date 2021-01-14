@@ -21,7 +21,7 @@ public class EmailService {
     private static final String EMSP = "&emsp;";
     private static final String EXCEPTION_SUBJECT = "Exception Thrown";
     private static final String LINE_BREAK = "<br/>";
-    private static final String IMAGE = "<img src=\"cid:";
+    private static final String IMAGE_CID = "<img src=\"cid:";
     private static final String IMAGE_END = "\"/>";
 
     @Value("${spring.mail.username}")
@@ -64,9 +64,11 @@ public class EmailService {
 		    sb.append(LINE_BREAK);
 		}
 
-		sb.append(IMAGE);
-		sb.append(inlineImage.getName());
-		sb.append(IMAGE_END);
+		if (StringUtils.isNotBlank(htmlBody) && !StringUtils.containsIgnoreCase(htmlBody, IMAGE_CID)) {
+		    sb.append(IMAGE_CID);
+		    sb.append(inlineImage.getName());
+		    sb.append(IMAGE_END);
+		}
 
 		// text needs to be set first before inline
 		helper.setText(sb.toString(), true);
@@ -105,6 +107,16 @@ public class EmailService {
 	}
 
 	email(EXCEPTION_SUBJECT, sb.toString());
+    }
+
+    // getImageCid
+    public String getImageCid() {
+	return IMAGE_CID;
+    }
+
+    // getImageEnd
+    public String getImageEnd() {
+	return IMAGE_END;
     }
 
     // getLinkBreak
