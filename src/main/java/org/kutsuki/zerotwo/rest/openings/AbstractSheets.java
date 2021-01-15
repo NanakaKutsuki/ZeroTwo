@@ -58,7 +58,7 @@ public abstract class AbstractSheets extends AbstractChrome {
 	    this.sheets = new Sheets.Builder(transport, JSON_FACTORY, getCredentials())
 		    .setApplicationName(APPLICATION_NAME).build();
 	} catch (GeneralSecurityException | IOException e) {
-	    service.emailException("Error connecting with Google Sheets!", e);
+	    // do nothing
 	}
     }
 

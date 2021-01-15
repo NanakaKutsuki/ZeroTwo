@@ -1,5 +1,7 @@
 package org.kutsuki.zerotwo.rest;
 
+import java.io.IOException;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
@@ -9,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
@@ -67,7 +68,7 @@ public class ScraperRest extends AbstractChrome {
 		try {
 		    openIngcognitoChrome(link);
 		    hotelOpen = true;
-		} catch (Exception e) {
+		} catch (IOException e) {
 		    service.emailException("Error opening Hotel Window: " + link, e);
 		}
 	    }
@@ -80,22 +81,14 @@ public class ScraperRest extends AbstractChrome {
 	    try {
 		openChrome(shadowLink);
 		tradingOpen = true;
-	    } catch (Exception e) {
+	    } catch (IOException e) {
 		service.emailException("Error opening Trading Window: " + shadowLink, e);
 	    }
 	}
     }
 
     private String httpGet(String link) {
-	String response = null;
-
-	try {
-	    RestTemplate restTemplate = new RestTemplate();
-	    response = restTemplate.getForObject(link, String.class);
-	} catch (RestClientException e) {
-	    service.emailException("Error with httpGet: " + link, e);
-	}
-
-	return response;
+	RestTemplate restTemplate = new RestTemplate();
+	return restTemplate.getForObject(link, String.class);
     }
 }

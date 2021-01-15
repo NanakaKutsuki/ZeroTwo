@@ -1,9 +1,5 @@
 package org.kutsuki.zerotwo.rest.post.tda;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-
 public class PostToken {
     private String access_token;
     private String refresh_token;
@@ -11,20 +7,6 @@ public class PostToken {
     private int expires_in;
     private String scope;
     private int refresh_token_expires_in;
-
-    @Override
-    public String toString() {
-	String json = null;
-
-	try {
-	    ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-	    json = ow.writeValueAsString(this);
-	} catch (JsonProcessingException e) {
-	    e.printStackTrace();
-	}
-
-	return json;
-    }
 
     public String getAccess_token() {
 	return access_token;

@@ -38,12 +38,12 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	this.strike = strike;
 	this.type = type;
 
-	StringBuilder sb = new StringBuilder();
-	sb.append(getSymbol());
-	sb.append(SYMBOL_DTF.format(getExpiry()));
-	sb.append(getType().toString().charAt(0));
-	sb.append(getStrike());
-	this.fullSymbol = sb.toString();
+	StringBuilder full = new StringBuilder();
+	full.append(getSymbol());
+	full.append(SYMBOL_DTF.format(getExpiry()));
+	full.append(getType().toString().charAt(0));
+	full.append(getStrike());
+	this.fullSymbol = full.toString();
     }
 
     @Override
