@@ -2,7 +2,6 @@ package org.kutsuki.zerotwo;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.kutsuki.zerotwo.portfolio.OrderManager;
 import org.kutsuki.zerotwo.repository.OpeningRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,8 +11,8 @@ public class ZeroTwoApplicationTests {
     @Autowired
     private OpeningRepository repository;
 
-    @Autowired
-    private OrderManager manager;
+    // @Autowired
+    // private OrderManager manager;
 
     @Test
     public void contextLoads() {
