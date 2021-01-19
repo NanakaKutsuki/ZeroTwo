@@ -163,7 +163,7 @@ public class OrderHelperTests {
 	List<Position> expected = new ArrayList<Position>();
 	expected.add(new Position(414, 2, "GLD", LocalDate.of(2020, 10, 9), false, BigDecimal.valueOf(184),
 		OptionType.CALL));
-	testOrder(actual, expected, "CALL", "GLD", BigDecimal.valueOf(.32), "NET_DEBIT");
+	testOrder(actual, expected, "CALL", "GLD", BigDecimal.valueOf(.32), "LIMIT");
 
 	String test2 = "#414 SOLD -4 GLD 6 NOV 20 172 PUT @.38 BATS We are now full size on both sides for 11.6.  Will assess the credits on afternoon of 11.3 just before election.";
 
@@ -171,7 +171,7 @@ public class OrderHelperTests {
 	expected = new ArrayList<Position>();
 	expected.add(new Position(414, -4, "GLD", LocalDate.of(2020, 11, 6), false, BigDecimal.valueOf(172),
 		OptionType.PUT));
-	testOrder(actual, expected, "PUT", "GLD", BigDecimal.valueOf(.38), "NET_CREDIT");
+	testOrder(actual, expected, "PUT", "GLD", BigDecimal.valueOf(.38), "LIMIT");
     }
 
     @Test
@@ -265,7 +265,7 @@ public class OrderHelperTests {
 		OptionType.CALL));
 	expected.add(
 		new Position(519, 1, "SPY", LocalDate.of(2021, 1, 8), false, BigDecimal.valueOf(379), OptionType.CALL));
-	testOrder(actual, expected, "VERTICAL", "SPY", BigDecimal.valueOf(2.00), "MARKET", false, true, true, 0);
+	testOrder(actual, expected, "VERTICAL", "SPY", BigDecimal.valueOf(2.00), "NET_CREDIT", false, true, true, 0);
 
 	String test2 = "#520 WORKING SELL -5 TSLA 100 15 JAN 21 1020 CALL STP .65 Stop limit order on the 1020 calls that turns in to bwb if filled and clears debit on trade.";
 
@@ -273,7 +273,7 @@ public class OrderHelperTests {
 	expected = new ArrayList<Position>();
 	expected.add(new Position(520, -5, "TSLA", LocalDate.of(2021, 1, 15), false, BigDecimal.valueOf(1020),
 		OptionType.CALL));
-	testOrder(actual, expected, "CALL", "TSLA", BigDecimal.valueOf(.65), "MARKET", false, true, true, 0);
+	testOrder(actual, expected, "CALL", "TSLA", BigDecimal.valueOf(.65), "LIMIT", false, true, true, 0);
     }
 
     @Test
@@ -284,7 +284,7 @@ public class OrderHelperTests {
 	List<Position> expected = new ArrayList<Position>();
 	expected.add(new Position(465, 1, "SPX", LocalDate.of(2020, 10, 30), false, BigDecimal.valueOf(3415),
 		OptionType.CALL));
-	testOrder(actual, expected, "CALL", "SPX", new BigDecimal("3342.00"), "LIMIT", false, true, true, 1);
+	testOrder(actual, expected, "CALL", "SPX", BigDecimal.valueOf(3342.00), "LIMIT", false, true, true, 1);
 
 	String test2 = "#432 NEW WORKING SELL -1 BUTTERFLY NFLX 4 SEP 20 550/570/590 CALL MKT WHEN NFLX MARK AT OR BELOW 550.00";
 
@@ -296,7 +296,7 @@ public class OrderHelperTests {
 		OptionType.CALL));
 	expected.add(new Position(432, -1, "NFLX", LocalDate.of(2020, 9, 4), false, BigDecimal.valueOf(590),
 		OptionType.CALL));
-	testOrder(actual, expected, "BUTTERFLY", "NFLX", new BigDecimal("550.00"), "MARKET", false, false, true, -1);
+	testOrder(actual, expected, "BUTTERFLY", "NFLX", BigDecimal.valueOf(550.00), "MARKET", false, false, true, -1);
     }
 
     private void testOrder(OrderModel actual, List<Position> expected, String spread, String symbol, BigDecimal price,
@@ -308,7 +308,7 @@ public class OrderHelperTests {
 	    String orderType, boolean gtc, boolean stop, boolean working, int condition) {
 	Assertions.assertEquals(spread, actual.getSpread(), "Wrong Spread");
 	Assertions.assertEquals(symbol, actual.getSymbol(), "Wrong Order Symbol");
-	Assertions.assertEquals(price, actual.getPrice(), "Wrong Order Price");
+	Assertions.assertTrue(price.compareTo(actual.getPrice()) == 0, "Wrong Order Price");
 	Assertions.assertEquals(orderType, actual.getOrderType(), "Wrong Order Type");
 	Assertions.assertEquals(gtc, actual.isGTC(), "Wrong GTC");
 	Assertions.assertEquals(stop, actual.isStop(), "Wrong Stop");
