@@ -12,26 +12,31 @@ public class DiagonalSpread extends AbstractSpread {
     private static final String DIAGONAL = "DIAGONAL";
 
     @Override
-    protected OrderModel parseOrder(List<String> dataList, int tradeId, boolean am, boolean stop, BigDecimal condition)
-	    throws Exception {
-	int quantity = parseQuantity(dataList.get(0));
+    protected OrderModel parseOrder() throws Exception {
+	int quantity = parseQuantity(getDataList().get(0));
 	// dataList.get(1) = DIAGONAL
-	String symbol = parseSymbol(dataList.get(2));
+	String symbol = parseSymbol(getDataList().get(2));
 
 	// day month (year/day) month year
-	List<String> splitDate = parseSlashes(dataList.get(5));
+	List<String> splitDate = parseSlashes(getDataList().get(5));
 
-	LocalDate expiry = parseExpiry(dataList.get(3), dataList.get(4), splitDate.get(0));
-	LocalDate expiry2 = parseExpiry(splitDate.get(1), dataList.get(6), dataList.get(7));
-	List<BigDecimal> strikeList = parseSlashesBD(dataList.get(8));
-	OptionType type = parseType(dataList.get(9));
-	BigDecimal price = parsePrice(dataList.get(10), condition);
+	LocalDate expiry = parseExpiry(getDataList().get(3), getDataList().get(4), splitDate.get(0));
+	LocalDate expiry2 = parseExpiry(splitDate.get(1), getDataList().get(6), getDataList().get(7));
+	List<BigDecimal> strikeList = parseSlashesBD(getDataList().get(8));
+	OptionType type = parseType(getDataList().get(9));
+	BigDecimal price = parsePrice(getDataList().get(10));
+	String orderType = parseOrderType(getDataList().get(10), quantity);
 
-	OrderModel order = new OrderModel(getSpread(), price, dataList.get(10), stop, condition);
-	order.addPosition(new Position(tradeId, quantity, symbol, expiry, am, strikeList.get(0), type));
-	order.addPosition(new Position(tradeId, -quantity, symbol, expiry2, am, strikeList.get(1), type));
+	OrderModel order = createOrder(orderType, price);
+	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, isAM(), strikeList.get(0), type));
+	order.addPosition(new Position(getTradeId(), -quantity, symbol, expiry2, isAM(), strikeList.get(1), type));
 
 	return order;
+    }
+
+    @Override
+    public String getComplex() {
+	return DIAGONAL;
     }
 
     @Override

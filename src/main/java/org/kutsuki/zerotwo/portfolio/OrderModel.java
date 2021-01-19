@@ -8,48 +8,62 @@ import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.document.Position;
 
 public class OrderModel {
+    private boolean gtc;
     private boolean stop;
-    private BigDecimal priceBD;
+    private boolean working;
+    private BigDecimal price;
     private List<Position> positionList;
     private int condition;
-    private String price;
+    private String complex;
+    private String orderType;
     private String spread;
 
-    public OrderModel(String spread, BigDecimal priceBD, String price, boolean stop, BigDecimal condition) {
-	this.condition = condition.compareTo(BigDecimal.ZERO);
+    public OrderModel(String spread, String complex, String orderType, BigDecimal price, boolean gtc, boolean stop,
+	    boolean working, int condition) {
+	this.complex = complex;
+	this.condition = condition;
+	this.gtc = gtc;
+	this.orderType = orderType;
 	this.positionList = new ArrayList<Position>();
-	this.priceBD = priceBD;
+	this.price = price;
 	this.spread = spread;
 	this.stop = stop;
-
-	if (this.condition == 0) {
-	    this.price = price;
-	} else {
-	    this.price = priceBD.toString();
-	}
+	this.working = working;
     }
 
     public void addPosition(Position model) {
 	positionList.add(model);
     }
 
+    public boolean isGTC() {
+	return gtc;
+    }
+
     public boolean isStop() {
 	return stop;
+    }
+
+    public boolean isWorking() {
+	return working;
+    }
+
+    public String getComplex() {
+	return complex;
     }
 
     public int getCondition() {
 	return condition;
     }
 
+    public String getOrderType() {
+	return orderType;
+    }
+
     public List<Position> getPositionList() {
 	return positionList;
     }
 
-    public BigDecimal getPriceBD() {
-	return priceBD;
-    }
-
-    public String getPrice() {
+    public BigDecimal getPrice() {
 	return price;
     }
 

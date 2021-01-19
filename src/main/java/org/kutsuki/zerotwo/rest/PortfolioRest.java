@@ -39,13 +39,14 @@ public class PortfolioRest {
     private static final String BOLD = "<b>";
     private static final String BOLD_CLOSE = "</b>";
     private static final String CONDITION = " Submit on Market Condition ";
+    private static final String GTC = "GTC";
+    private static final String GTC_EXPLAINATION = " - This trade is a Good Till Canceled!";
     private static final String IMAGE = "image/";
     private static final String MARK_ABOVE = " MARK at or ABOVE ";
     private static final String MARK_BELOW = " MARK at or BELOW ";
     private static final String NEW = "NEW";
     private static final String PORTFOLIO = "[PORTFOLIO]";
     private static final String SHADOW = "Shadow";
-    private static final String STP = "STP ";
     private static final String STOP = "STOP";
     private static final String STOP_EXPLAINATION = " - This trade is a STOP Limit order!";
     private static final String STOP_LIMIT = "Stop Limit (MARK)";
@@ -190,12 +191,10 @@ public class PortfolioRest {
 	if (StringUtils.startsWith(message, Character.toString('#'))
 		|| StringUtils.startsWithIgnoreCase(message, UNOFFICIAL)) {
 	    boolean first = true;
-	    boolean working = false;
 	    boolean unofficial = false;
 
 	    try {
 		List<OrderModel> orderList = helper.createOrders(message);
-		updatePortfolio(orderList, working || unofficial);
 
 		if (orderList.size() > 0) {
 		    tradeId = orderList.get(0).getPositionList().get(0).getTradeId();
@@ -212,46 +211,64 @@ public class PortfolioRest {
 		    unofficial = true;
 		}
 
-		String first25 = StringUtils.substring(message, 0, 25);
-		if (StringUtils.containsIgnoreCase(first25, NEW)) {
+		String first15 = StringUtils.substring(message, 0, 15);
+		if (StringUtils.containsIgnoreCase(first15, NEW)) {
 		    subject.append(StringUtils.SPACE);
 		    subject.append(NEW);
 		}
 
-		if (StringUtils.containsIgnoreCase(first25, WORKING)) {
-		    subject.append(StringUtils.SPACE);
-		    subject.append(WORKING);
-		    body.append(BOLD);
-		    body.append(WORKING);
-		    body.append(StringUtils.SPACE);
-		    body.append(WORKING);
-		    body.append(StringUtils.SPACE);
-		    body.append(WORKING);
-		    body.append(StringUtils.SPACE);
-		    body.append(WORKING_EXPLAINATION);
-		    body.append(BOLD_CLOSE);
-		    body.append(service.getLineBreak());
-		    body.append(service.getLineBreak());
-		    working = true;
+		if (orderList.size() > 0) {
+		    if (orderList.get(0).isWorking()) {
+			subject.append(StringUtils.SPACE);
+			subject.append(WORKING);
+			body.append(BOLD);
+			body.append(WORKING);
+			body.append(StringUtils.SPACE);
+			body.append(WORKING);
+			body.append(StringUtils.SPACE);
+			body.append(WORKING);
+			body.append(StringUtils.SPACE);
+			body.append(WORKING_EXPLAINATION);
+			body.append(BOLD_CLOSE);
+			body.append(service.getLineBreak());
+			body.append(service.getLineBreak());
+		    }
+
+		    if (orderList.get(0).isStop()) {
+			subject.append(StringUtils.SPACE);
+			subject.append(STOP);
+			body.append(BOLD);
+			body.append(STOP);
+			body.append(StringUtils.SPACE);
+			body.append(STOP);
+			body.append(StringUtils.SPACE);
+			body.append(STOP);
+			body.append(StringUtils.SPACE);
+			body.append(STOP_EXPLAINATION);
+			body.append(BOLD_CLOSE);
+			body.append(service.getLineBreak());
+			body.append(service.getLineBreak());
+		    }
+
+		    if (orderList.get(0).isGTC()) {
+			subject.append(StringUtils.SPACE);
+			subject.append(GTC);
+			body.append(BOLD);
+			body.append(GTC);
+			body.append(StringUtils.SPACE);
+			body.append(GTC);
+			body.append(StringUtils.SPACE);
+			body.append(GTC);
+			body.append(StringUtils.SPACE);
+			body.append(GTC_EXPLAINATION);
+			body.append(BOLD_CLOSE);
+			body.append(service.getLineBreak());
+			body.append(service.getLineBreak());
+		    }
 		}
 
-		if (StringUtils.containsIgnoreCase(message, STP)) {
-		    subject.append(StringUtils.SPACE);
-		    subject.append(STOP);
-
-		    // add stop
-		    body.append(BOLD);
-		    body.append(STOP);
-		    body.append(StringUtils.SPACE);
-		    body.append(STOP);
-		    body.append(StringUtils.SPACE);
-		    body.append(STOP);
-		    body.append(StringUtils.SPACE);
-		    body.append(STOP_EXPLAINATION);
-		    body.append(BOLD_CLOSE);
-		    body.append(service.getLineBreak());
-		    body.append(service.getLineBreak());
-		}
+		// updatePortfolio
+		updatePortfolio(orderList, unofficial);
 
 		for (OrderModel order : orderList) {
 		    if (!first) {
@@ -297,6 +314,9 @@ public class PortfolioRest {
 			    body.append(StringUtils.SPACE);
 			    body.append(STOP_LIMIT);
 			}
+
+			body.append(StringUtils.SPACE);
+			body.append(order.getOrderType());
 		    }
 
 		    body.append(BOLD_CLOSE);
@@ -310,7 +330,7 @@ public class PortfolioRest {
 				|| StringUtils.equals(order.getSpread(), OptionType.PUT.toString()))
 				&& order.getCondition() == 0) {
 			    body.append(StringUtils.SPACE);
-			    body.append(order.getPriceBD());
+			    body.append(order.getPrice().toString());
 			}
 
 			body.append(service.getLineBreak());
@@ -367,7 +387,7 @@ public class PortfolioRest {
 	}
     }
 
-    private void updatePortfolio(List<OrderModel> orderList, boolean working) {
+    private void updatePortfolio(List<OrderModel> orderList, boolean unofficial) {
 	LocalDate now = LocalDate.now();
 	for (Position position : portfolioMap.values()) {
 	    if (now.isAfter(position.getExpiry())) {
@@ -385,13 +405,13 @@ public class PortfolioRest {
 		if (position != null) {
 		    int qty = position.getQuantity() + orderEntry.getQuantity();
 
-		    if (!working) {
+		    if (!order.isWorking() && !unofficial) {
 			position.setQuantity(qty);
 			portfolioMap.put(position.getFullSymbol(), position);
 			saveList.add(position);
 		    }
 		} else {
-		    if (!working) {
+		    if (!order.isWorking() && !unofficial) {
 			portfolioMap.put(orderEntry.getFullSymbol(), orderEntry);
 			saveList.add(orderEntry);
 		    }

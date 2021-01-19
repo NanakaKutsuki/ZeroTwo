@@ -10,28 +10,34 @@ import org.kutsuki.zerotwo.portfolio.OrderModel;
 
 public class UnbalancedButterflySpread extends AbstractSpread {
     private static final String UNBALANCED_BUTTERFLY = "~BUTTERFLY";
+    private static final String UNBALANCED_BUTTERFLY_COMPLEX = "UNBALANCED_BUTTERFLY";
 
     @Override
-    protected OrderModel parseOrder(List<String> dataList, int tradeId, boolean am, boolean stop, BigDecimal condition)
-	    throws Exception {
-	int quantity = parseQuantity(dataList.get(0));
-	List<BigDecimal> ratioList = parseSlashesBD(dataList.get(1));
+    protected OrderModel parseOrder() throws Exception {
+	int quantity = parseQuantity(getDataList().get(0));
+	List<BigDecimal> ratioList = parseSlashesBD(getDataList().get(1));
 	// dataList.get(2) = ~BUTTERFLY
-	String symbol = parseSymbol(dataList.get(3));
-	LocalDate expiry = parseExpiry(dataList.get(4), dataList.get(5), dataList.get(6));
-	List<BigDecimal> strikeList = parseSlashesBD(dataList.get(7));
-	OptionType type = parseType(dataList.get(8));
-	BigDecimal price = parsePrice(dataList.get(9), condition);
+	String symbol = parseSymbol(getDataList().get(3));
+	LocalDate expiry = parseExpiry(getDataList().get(4), getDataList().get(5), getDataList().get(6));
+	List<BigDecimal> strikeList = parseSlashesBD(getDataList().get(7));
+	OptionType type = parseType(getDataList().get(8));
+	BigDecimal price = parsePrice(getDataList().get(9));
+	String orderType = parseOrderType(getDataList().get(9), quantity);
 
-	OrderModel order = new OrderModel(getSpread(), price, dataList.get(9), stop, condition);
+	OrderModel order = createOrder(orderType, price);
 	int qty1 = quantity * ratioList.get(0).intValue();
-	order.addPosition(new Position(tradeId, qty1, symbol, expiry, am, strikeList.get(0), type));
+	order.addPosition(new Position(getTradeId(), qty1, symbol, expiry, isAM(), strikeList.get(0), type));
 	int qty2 = -quantity * ratioList.get(1).intValue();
-	order.addPosition(new Position(tradeId, qty2, symbol, expiry, am, strikeList.get(1), type));
+	order.addPosition(new Position(getTradeId(), qty2, symbol, expiry, isAM(), strikeList.get(1), type));
 	int qty3 = quantity * ratioList.get(2).intValue();
-	order.addPosition(new Position(tradeId, qty3, symbol, expiry, am, strikeList.get(2), type));
+	order.addPosition(new Position(getTradeId(), qty3, symbol, expiry, isAM(), strikeList.get(2), type));
 
 	return order;
+    }
+
+    @Override
+    public String getComplex() {
+	return UNBALANCED_BUTTERFLY_COMPLEX;
     }
 
     @Override

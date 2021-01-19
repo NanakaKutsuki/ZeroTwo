@@ -2,9 +2,7 @@ package org.kutsuki.zerotwo.portfolio;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.document.Position;
@@ -17,7 +15,6 @@ import org.kutsuki.zerotwo.portfolio.spread.RatioSpread;
 import org.kutsuki.zerotwo.portfolio.spread.SingleSpread;
 import org.kutsuki.zerotwo.portfolio.spread.UnbalancedButterflySpread;
 import org.kutsuki.zerotwo.portfolio.spread.VerticalSpread;
-import org.kutsuki.zerotwo.rest.post.tda.PostPlaceOrder;
 
 public class OrderHelper {
     private static final DateTimeFormatter SYMBOL_DTF = DateTimeFormatter.ofPattern("MMddyy");
@@ -32,7 +29,6 @@ public class OrderHelper {
     private static final String WEEKLYS = " (Weeklys) ";
 
     private List<AbstractSpread> spreadList;
-    private Map<String, String> spreadComplexMap;
 
     public OrderHelper() {
 	// order matters
@@ -45,16 +41,6 @@ public class OrderHelper {
 	this.spreadList.add(new ButterflySpread());
 	this.spreadList.add(new CondorSpread());
 	this.spreadList.add(new SingleSpread());
-
-	this.spreadComplexMap = new HashMap<String, String>();
-	this.spreadComplexMap.put("IRON CONDOR", "IRON_CONDOR");
-	this.spreadComplexMap.put("~BUTTERFLY", "UNBALANCED_BUTTERFLY");
-	this.spreadComplexMap.put("DIAGONAL", "DIAGONAL");
-	this.spreadComplexMap.put("BACKRATIO", "BACK_RATIO");
-	this.spreadComplexMap.put("VERTICAL", "VERTICAL");
-	this.spreadComplexMap.put("BUTTERFLY", "BUTTERFLY");
-	this.spreadComplexMap.put("CONDOR", "CONDOR");
-	this.spreadComplexMap.put("SINGLE", "NONE");
     }
 
     public List<OrderModel> createOrders(String message) throws Exception {
@@ -109,17 +95,6 @@ public class OrderHelper {
 	}
 
 	return orderList;
-    }
-
-    // TODO determine limit/net debit/net credit/market
-    // determine day or GTC
-    // change working to LMT
-    public PostPlaceOrder createPostOrder(OrderModel order) {
-	String complex = spreadComplexMap.get(order.getSpread());
-
-	PostPlaceOrder post = new PostPlaceOrder(complex, "LIMIT", order.getPriceBD().toString(), "DAY");
-	// add legs
-	return post;
     }
 
     public String getOrderSymbol(Position position) {

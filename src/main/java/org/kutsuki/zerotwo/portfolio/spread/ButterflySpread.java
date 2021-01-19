@@ -12,23 +12,28 @@ public class ButterflySpread extends AbstractSpread {
     private static final String BUTTERFLY = "BUTTERFLY";
 
     @Override
-    protected OrderModel parseOrder(List<String> dataList, int tradeId, boolean am, boolean stop, BigDecimal condition)
-	    throws Exception {
-	int quantity = parseQuantity(dataList.get(0));
+    protected OrderModel parseOrder() throws Exception {
+	int quantity = parseQuantity(getDataList().get(0));
 	// dataList.get(1) = BUTTERFLY
-	String symbol = parseSymbol(dataList.get(2));
-	LocalDate expiry = parseExpiry(dataList.get(3), dataList.get(4), dataList.get(5));
-	List<BigDecimal> strikeList = parseSlashesBD(dataList.get(6));
-	OptionType type = parseType(dataList.get(7));
-	BigDecimal price = parsePrice(dataList.get(8), condition);
+	String symbol = parseSymbol(getDataList().get(2));
+	LocalDate expiry = parseExpiry(getDataList().get(3), getDataList().get(4), getDataList().get(5));
+	List<BigDecimal> strikeList = parseSlashesBD(getDataList().get(6));
+	OptionType type = parseType(getDataList().get(7));
+	BigDecimal price = parsePrice(getDataList().get(8));
+	String orderType = parseOrderType(getDataList().get(8), quantity);
 
-	OrderModel order = new OrderModel(getSpread(), price, dataList.get(8), stop, condition);
-	order.addPosition(new Position(tradeId, quantity, symbol, expiry, am, strikeList.get(0), type));
+	OrderModel order = createOrder(orderType, price);
+	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, isAM(), strikeList.get(0), type));
 	int qty2 = -quantity * 2;
-	order.addPosition(new Position(tradeId, qty2, symbol, expiry, am, strikeList.get(1), type));
-	order.addPosition(new Position(tradeId, quantity, symbol, expiry, am, strikeList.get(2), type));
+	order.addPosition(new Position(getTradeId(), qty2, symbol, expiry, isAM(), strikeList.get(1), type));
+	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, isAM(), strikeList.get(2), type));
 
 	return order;
+    }
+
+    @Override
+    public String getComplex() {
+	return BUTTERFLY;
     }
 
     @Override

@@ -4,14 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.kutsuki.zerotwo.portfolio.OrderLegCollection;
+import org.kutsuki.zerotwo.portfolio.OrderModel;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class PostPlaceOrder {
-    private static final String SINGLE = "SINGLE";
+    private static final String DAY = "DAY";
+    private static final String GTC = "GOOD_TILL_CANCEL";
     private static final String NORMAL = "NORMAL";
+    private static final String SINGLE = "SINGLE";
 
     private String complexOrderStrategyType;
     private String orderType;
@@ -29,6 +32,18 @@ public class PostPlaceOrder {
 	this.session = NORMAL;
 	this.orderStrategyType = SINGLE;
 	this.orderLegCollection = new ArrayList<OrderLegCollection>();
+    }
+
+    public PostPlaceOrder(OrderModel order) {
+	this.complexOrderStrategyType = order.getComplex();
+	this.orderType = order.getOrderType();
+	this.price = order.getPrice().toString();
+	this.duration = order.isGTC() ? GTC : DAY;
+	this.session = NORMAL;
+	this.orderStrategyType = SINGLE;
+
+	this.orderLegCollection = new ArrayList<OrderLegCollection>();
+	// TODO position to order leg
     }
 
     public void createOrderLegCollection(String instruction, int quantity, String symbol) {
