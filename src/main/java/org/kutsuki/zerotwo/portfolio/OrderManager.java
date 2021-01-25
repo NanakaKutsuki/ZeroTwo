@@ -1,5 +1,6 @@
 package org.kutsuki.zerotwo.portfolio;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -152,9 +153,16 @@ public class OrderManager {
 	}
 
 	this.positionMap.clear();
+	List<TdaPosition> removeList = new ArrayList<TdaPosition>();
 	for (TdaPosition position : repository.findAll()) {
-	    this.positionMap.put(position.getSymbol(), position);
+	    if (position.getExpiry().isAfter(LocalDate.now())) {
+		this.positionMap.put(position.getSymbol(), position);
+	    } else {
+		removeList.add(position);
+	    }
 	}
+
+	repository.deleteAll(removeList);
     }
 
     public void removeSkip(int tradeId) {
