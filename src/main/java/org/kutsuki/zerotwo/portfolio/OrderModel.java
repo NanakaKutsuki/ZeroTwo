@@ -31,8 +31,8 @@ public class OrderModel {
 	this.working = working;
     }
 
-    public void addPosition(Position model) {
-	positionList.add(model);
+    public void addPosition(Position position) {
+	positionList.add(position);
     }
 
     public boolean isGTC() {

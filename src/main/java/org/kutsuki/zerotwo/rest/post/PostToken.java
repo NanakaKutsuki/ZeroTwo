@@ -1,4 +1,4 @@
-package org.kutsuki.zerotwo.rest.post.tda;
+package org.kutsuki.zerotwo.rest.post;
 
 public class PostToken {
     private String access_token;

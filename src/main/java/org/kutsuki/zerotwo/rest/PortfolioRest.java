@@ -19,6 +19,7 @@ import org.kutsuki.zerotwo.document.Opening;
 import org.kutsuki.zerotwo.document.Position;
 import org.kutsuki.zerotwo.portfolio.OptionType;
 import org.kutsuki.zerotwo.portfolio.OrderHelper;
+import org.kutsuki.zerotwo.portfolio.OrderManager;
 import org.kutsuki.zerotwo.portfolio.OrderModel;
 import org.kutsuki.zerotwo.repository.OpeningRepository;
 import org.kutsuki.zerotwo.repository.PositionRepository;
@@ -48,10 +49,10 @@ public class PortfolioRest {
     private static final String PORTFOLIO = "[PORTFOLIO]";
     private static final String SHADOW = "Shadow";
     private static final String STOP = "STOP";
-    private static final String STOP_EXPLAINATION = " - This trade is a STOP Limit order!";
+    private static final String STOP_EXPLAINATION = " - This trade is a STOP order!";
     private static final String STOP_LIMIT = "Stop Limit (MARK)";
     private static final String ST_WEEKLY = "ST Weekly";
-    private static final String SYMBOL_EXPLAINATION = "Symbol yymmdd C/P Strike";
+    private static final String SYMBOL_EXPLAINATION = "Symbol_mmddyy (C/P) (Strike)";
     private static final String WORKING = "WORKING";
     private static final String WORKING_EXPLAINATION = " - This trade has not been filled!";
     private static final String UNOFFICIAL = "Unofficial:";
@@ -61,6 +62,9 @@ public class PortfolioRest {
 
     @Autowired
     private PositionRepository repository;
+
+    @Autowired
+    private OrderManager manager;
 
     @Autowired
     private EmailService service;
@@ -196,19 +200,22 @@ public class PortfolioRest {
 	    try {
 		List<OrderModel> orderList = helper.createOrders(message);
 
+		if (StringUtils.startsWithIgnoreCase(message, UNOFFICIAL)) {
+		    subject.append(UNOFFICIAL);
+		    unofficial = true;
+		}
+
 		if (orderList.size() > 0) {
-		    tradeId = orderList.get(0).getPositionList().get(0).getTradeId();
-		    subject.append('#');
-		    subject.append(tradeId);
+		    if (!unofficial) {
+			tradeId = orderList.get(0).getPositionList().get(0).getTradeId();
+			subject.append('#');
+			subject.append(tradeId);
+		    }
+
 		    body.append(service.getLineBreak());
 		    body.append(service.getLineBreak());
 		} else {
 		    subject.append(StringUtils.substringBefore(message, StringUtils.SPACE));
-		}
-
-		if (StringUtils.startsWithIgnoreCase(message, UNOFFICIAL)) {
-		    subject.append(UNOFFICIAL);
-		    unofficial = true;
 		}
 
 		String first15 = StringUtils.substring(message, 0, 15);
@@ -271,6 +278,10 @@ public class PortfolioRest {
 		updatePortfolio(orderList, unofficial);
 
 		for (OrderModel order : orderList) {
+		    if (!test) {
+			manager.placeOrder(order);
+		    }
+
 		    if (!first) {
 			// only for seperate orders
 			subject.append(StringUtils.SPACE);

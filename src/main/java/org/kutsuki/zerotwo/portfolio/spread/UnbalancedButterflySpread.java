@@ -10,7 +10,7 @@ import org.kutsuki.zerotwo.portfolio.OrderModel;
 
 public class UnbalancedButterflySpread extends AbstractSpread {
     private static final String UNBALANCED_BUTTERFLY = "~BUTTERFLY";
-    private static final String UNBALANCED_BUTTERFLY_COMPLEX = "UNBALANCED_BUTTERFLY";
+    private static final String UNBALANCED_BUTTERFLY_COMPLEX = "BUTTERFLY";
 
     @Override
     protected OrderModel parseOrder() throws Exception {

@@ -1,11 +1,9 @@
 package org.kutsuki.zerotwo.portfolio;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.kutsuki.zerotwo.document.Position;
 import org.kutsuki.zerotwo.portfolio.spread.AbstractSpread;
 import org.kutsuki.zerotwo.portfolio.spread.ButterflySpread;
 import org.kutsuki.zerotwo.portfolio.spread.CondorSpread;
@@ -17,8 +15,6 @@ import org.kutsuki.zerotwo.portfolio.spread.UnbalancedButterflySpread;
 import org.kutsuki.zerotwo.portfolio.spread.VerticalSpread;
 
 public class OrderHelper {
-    private static final DateTimeFormatter SYMBOL_DTF = DateTimeFormatter.ofPattern("MMddyy");
-
     private static final String AT = "@ ";
     private static final String BOT = "BOT ";
     private static final String BUY = "BUY ";
@@ -95,15 +91,5 @@ public class OrderHelper {
 	}
 
 	return orderList;
-    }
-
-    public String getOrderSymbol(Position position) {
-	StringBuilder sb = new StringBuilder();
-	sb.append(position.getSymbol());
-	sb.append('_');
-	sb.append(SYMBOL_DTF.format(position.getExpiry()));
-	sb.append(position.getType().toString().charAt(0));
-	sb.append(position.getStrike());
-	return sb.toString();
     }
 }

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Document
 public class Position extends AbstractDocument implements Comparable<Position> {
-    private static final DateTimeFormatter SYMBOL_DTF = DateTimeFormatter.ofPattern("yyMMdd");
+    private static final DateTimeFormatter SYMBOL_DTF = DateTimeFormatter.ofPattern("MMddyy");
     private static final DateTimeFormatter ORDER_DTF = DateTimeFormatter.ofPattern("d MMM yy");
     private static final String BUY = "BUY";
     private static final String MARK = "<mark><b>";
@@ -38,12 +38,17 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	this.strike = strike;
 	this.type = type;
 
-	StringBuilder full = new StringBuilder();
-	full.append(getSymbol());
-	full.append(SYMBOL_DTF.format(getExpiry()));
-	full.append(getType().toString().charAt(0));
-	full.append(getStrike());
-	this.fullSymbol = full.toString();
+	StringBuilder order = new StringBuilder();
+	order.append(getSymbol());
+	order.append('_');
+	order.append(SYMBOL_DTF.format(getExpiry()));
+	order.append(getType().toString().charAt(0));
+	order.append(getStrike());
+	this.fullSymbol = order.toString();
+    }
+
+    public void setFullSymbol(String fullSymbol) {
+	this.fullSymbol = fullSymbol;
     }
 
     @Override

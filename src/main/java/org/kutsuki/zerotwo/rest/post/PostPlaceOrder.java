@@ -1,19 +1,25 @@
-package org.kutsuki.zerotwo.rest.post.tda;
+package org.kutsuki.zerotwo.rest.post;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.kutsuki.zerotwo.document.Position;
 import org.kutsuki.zerotwo.portfolio.OrderLegCollection;
 import org.kutsuki.zerotwo.portfolio.OrderModel;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 public class PostPlaceOrder {
+    private static final String BUY_TO_CLOSE = "BUY_TO_CLOSE";
+    private static final String BUY_TO_OPEN = "BUY_TO_OPEN";
     private static final String DAY = "DAY";
     private static final String GTC = "GOOD_TILL_CANCEL";
     private static final String NORMAL = "NORMAL";
+    private static final String SELL_TO_CLOSE = "SELL_TO_CLOSE";
+    private static final String SELL_TO_OPEN = "SELL_TO_OPEN";
     private static final String SINGLE = "SINGLE";
 
     private String complexOrderStrategyType;
@@ -24,32 +30,49 @@ public class PostPlaceOrder {
     private String orderStrategyType;
     private List<OrderLegCollection> orderLegCollection;
 
-    public PostPlaceOrder(String complex, String orderType, String price, String duration) {
-	this.complexOrderStrategyType = complex;
-	this.orderType = orderType;
-	this.price = price;
-	this.duration = duration;
-	this.session = NORMAL;
-	this.orderStrategyType = SINGLE;
-	this.orderLegCollection = new ArrayList<OrderLegCollection>();
-    }
+    @JsonIgnore
+    private boolean working;
 
-    public PostPlaceOrder(OrderModel order) {
+    @JsonIgnore
+    private int orderId;
+
+    @JsonIgnore
+    private String key;
+
+    public PostPlaceOrder(OrderModel order, boolean open) {
 	this.complexOrderStrategyType = order.getComplex();
 	this.orderType = order.getOrderType();
 	this.price = order.getPrice().toString();
 	this.duration = order.isGTC() ? GTC : DAY;
 	this.session = NORMAL;
 	this.orderStrategyType = SINGLE;
-
 	this.orderLegCollection = new ArrayList<OrderLegCollection>();
-	// TODO position to order leg
+	this.working = order.isWorking();
+
+	for (Position position : order.getPositionList()) {
+	    createLeg(position.getFullSymbol(), position.getQuantity(), open);
+	    this.key += position.getFullSymbol();
+	}
     }
 
-    public void createOrderLegCollection(String instruction, int quantity, String symbol) {
+    public void createLeg(String symbol, int quantity, boolean open) {
 	OrderLegCollection leg = new OrderLegCollection();
-	leg.setInstruction(instruction);
-	leg.setQuantity(quantity);
+
+	if (open) {
+	    if (quantity < 0) {
+		leg.setInstruction(SELL_TO_OPEN);
+	    } else {
+		leg.setInstruction(BUY_TO_OPEN);
+	    }
+	} else {
+	    if (quantity < 0) {
+		leg.setInstruction(SELL_TO_CLOSE);
+	    } else {
+		leg.setInstruction(BUY_TO_CLOSE);
+	    }
+	}
+
+	leg.setQuantity(Math.abs(quantity));
 	leg.createInstrument(symbol);
 	orderLegCollection.add(leg);
     }
@@ -94,5 +117,21 @@ public class PostPlaceOrder {
 
     public List<OrderLegCollection> getOrderLegCollection() {
 	return orderLegCollection;
+    }
+
+    public int getOrderId() {
+	return orderId;
+    }
+
+    public String getKey() {
+	return key;
+    }
+
+    public boolean isWorking() {
+	return working;
+    }
+
+    public void setOrderId(int orderId) {
+	this.orderId = orderId;
     }
 }
