@@ -12,7 +12,6 @@ import java.util.List;
 import org.kutsuki.zerotwo.EmailService;
 import org.kutsuki.zerotwo.rest.AbstractChrome;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
@@ -46,12 +45,6 @@ public abstract class AbstractSheets extends AbstractChrome {
     @Autowired
     private EmailService service;
 
-    @Value("${sheets.path}")
-    private String path;
-
-    @Value("${sheets.sheetId}")
-    private String sheetId;
-
     public AbstractSheets() {
 	try {
 	    this.transport = GoogleNetHttpTransport.newTrustedTransport();
@@ -66,11 +59,7 @@ public abstract class AbstractSheets extends AbstractChrome {
 	return service;
     }
 
-    public String getPath() {
-	return path;
-    }
-
-    protected void clearSheet(String range) {
+    protected void clearSheet(String sheetId, String range) {
 	int retries = 0;
 	ClearValuesResponse response = null;
 
@@ -87,7 +76,7 @@ public abstract class AbstractSheets extends AbstractChrome {
 	}
     }
 
-    protected List<List<Object>> readSheet(String range) {
+    protected List<List<Object>> readSheet(String sheetId, String range) {
 	int retries = 0;
 	List<List<Object>> result = null;
 
@@ -107,7 +96,7 @@ public abstract class AbstractSheets extends AbstractChrome {
 	return result;
     }
 
-    protected void writeSheet(String range, ValueRange body) {
+    protected void writeSheet(String sheetId, String range, ValueRange body) {
 	boolean completed = false;
 	int retries = 0;
 

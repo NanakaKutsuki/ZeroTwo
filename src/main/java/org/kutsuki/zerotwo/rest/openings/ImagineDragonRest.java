@@ -56,6 +56,9 @@ public class ImagineDragonRest extends AbstractSheets {
     @Value("${imaginedragon.port}")
     private String port;
 
+    @Value("${sheets.sheetId}")
+    private String sheetId;
+
     @Scheduled(cron = "0 9 6 * * *")
     public void parseEmail() {
 	try {
@@ -145,12 +148,12 @@ public class ImagineDragonRest extends AbstractSheets {
 	workbook.close();
 
 	// clear sheet
-	clearSheet(CLEAR_RANGE);
+	clearSheet(sheetId, CLEAR_RANGE);
 
 	// write sheet
 	ValueRange body = new ValueRange();
 	body.setValues(writeRowList);
-	writeSheet(RANGE, body);
+	writeSheet(sheetId, RANGE, body);
     }
 
     private String getCell(Cell cell) {

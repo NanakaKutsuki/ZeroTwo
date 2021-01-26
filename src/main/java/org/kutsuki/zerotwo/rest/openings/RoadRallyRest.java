@@ -36,6 +36,9 @@ public class RoadRallyRest extends AbstractSheets {
     @Value("${roadrally.link}")
     private String link;
 
+    @Value("${sheets.sheetId}")
+    private String sheetId;
+
     public RoadRallyRest() {
 	this.linkList = new ArrayList<String>();
 	this.index = 0;
@@ -73,7 +76,7 @@ public class RoadRallyRest extends AbstractSheets {
 	    this.index = 0;
 	    this.lastIndex = -1;
 	    this.rowNum = 2;
-	    clearSheet(CLEAR_RANGE);
+	    clearSheet(sheetId, CLEAR_RANGE);
 	}
 
 	return ResponseEntity.ok().build();
@@ -92,7 +95,7 @@ public class RoadRallyRest extends AbstractSheets {
 
 	ValueRange body = new ValueRange();
 	body.setValues(writeRowList);
-	writeSheet(RANGE + rowNum, body);
+	writeSheet(sheetId, RANGE + rowNum, body);
 	index++;
 	rowNum++;
 

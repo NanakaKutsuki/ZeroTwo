@@ -7,6 +7,7 @@ import java.util.List;
 import org.kutsuki.zerotwo.document.Opening;
 import org.kutsuki.zerotwo.repository.OpeningRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,9 +23,12 @@ public class OpeningRest extends AbstractSheets {
     @Autowired
     private OpeningRepository repository;
 
+    @Value("${sheets.sheetId}")
+    private String sheetId;
+
     @Scheduled(cron = "0 30 6 * * *")
     public void writeLastChecked() {
-	clearSheet(CLEAR_RANGE);
+	clearSheet(sheetId, CLEAR_RANGE);
 	List<List<Object>> writeRowList = new ArrayList<List<Object>>();
 	for (Opening opening : repository.findAll()) {
 	    if (!opening.getProject().equals(SHADOW)) {
@@ -42,7 +46,7 @@ public class OpeningRest extends AbstractSheets {
 
 	ValueRange body = new ValueRange();
 	body.setValues(writeRowList);
-	writeSheet(RANGE, body);
+	writeSheet(sheetId, RANGE, body);
     }
 
     public String getLastChecked(String project) {

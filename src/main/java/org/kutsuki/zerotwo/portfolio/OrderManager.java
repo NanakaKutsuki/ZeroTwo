@@ -46,6 +46,9 @@ public class OrderManager {
     @Autowired
     private EmailService service;
 
+    @Autowired
+    private OrderSheetHelper sheet;
+
     @Value("${tda.refreshToken}")
     private String refreshToken;
 
@@ -112,7 +115,7 @@ public class OrderManager {
 			if (order.isWorking()) {
 			    workingList.add(post.getKey());
 			} else {
-			    queuedOrder(post);
+			    queuedOrder(post, order);
 			}
 		    } else {
 			service.email("Error placing order: " + response.getStatusCodeValue(), response.getBody());
@@ -214,7 +217,7 @@ public class OrderManager {
 	return open;
     }
 
-    private void queuedOrder(PostPlaceOrder placeOrder) {
+    private void queuedOrder(PostPlaceOrder placeOrder, OrderModel order) {
 	Thread thread = new Thread() {
 	    public void run() {
 		boolean queued = false;
@@ -258,6 +261,7 @@ public class OrderManager {
 
 				position = repository.save(position);
 				positionMap.put(position.getSymbol(), position);
+				sheet.addOrder(order, placeOrder.getPrice());
 
 				StringBuilder sb = new StringBuilder();
 				sb.append(leg.getQuantity());

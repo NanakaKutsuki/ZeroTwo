@@ -29,6 +29,9 @@ public class PlatinumReefRest extends AbstractSheets {
     @Value("${platinumreef.link}")
     private String link;
 
+    @Value("${sheets.sheetId}")
+    private String sheetId;
+
     @Scheduled(cron = "0 12 6 * * *")
     public void openBrowser() {
 	try {
@@ -40,7 +43,7 @@ public class PlatinumReefRest extends AbstractSheets {
 
     @GetMapping("/rest/platinumReef/clear")
     public ResponseEntity<String> clear() {
-	clearSheet(CLEAR_RANGE);
+	clearSheet(sheetId, CLEAR_RANGE);
 	return ResponseEntity.ok().build();
     }
 
@@ -58,7 +61,7 @@ public class PlatinumReefRest extends AbstractSheets {
 
 	ValueRange body = new ValueRange();
 	body.setValues(writeRowList);
-	writeSheet(RANGE + postData.getId(), body);
+	writeSheet(sheetId, RANGE + postData.getId(), body);
 	return ResponseEntity.ok().build();
     }
 }

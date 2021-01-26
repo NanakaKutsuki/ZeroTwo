@@ -43,6 +43,9 @@ public class AmalgamRest extends AbstractSheets {
     @Value("${amalgam.link}")
     private String link;
 
+    @Value("${sheets.sheetId}")
+    private String sheetId;
+
     @Scheduled(cron = "0 0 6 * * *")
     public void getOpenings() {
 	Account account = accountRepository.findByProject(AMALGAM);
@@ -62,12 +65,12 @@ public class AmalgamRest extends AbstractSheets {
 	}
 
 	// clear sheet
-	clearSheet(CLEAR_RANGE);
+	clearSheet(sheetId, CLEAR_RANGE);
 
 	// write sheet
 	ValueRange body = new ValueRange();
 	body.setValues(writeRowList);
-	writeSheet(RANGE, body);
+	writeSheet(sheetId, RANGE, body);
 
 	Authenticator.setDefault(null);
 
