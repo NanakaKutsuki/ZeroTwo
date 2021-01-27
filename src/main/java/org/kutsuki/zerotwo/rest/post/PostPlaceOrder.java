@@ -30,6 +30,9 @@ public class PostPlaceOrder {
     private String orderStrategyType;
     private List<OrderLegCollection> orderLegCollection;
 
+    private String stopPrice;
+    private String stopType;
+
     @JsonIgnore
     private boolean working;
 
@@ -42,12 +45,19 @@ public class PostPlaceOrder {
     public PostPlaceOrder(OrderModel order, boolean open) {
 	this.complexOrderStrategyType = order.getComplex();
 	this.orderType = order.getOrderType();
-	this.price = order.getPrice().toString();
 	this.duration = order.isGTC() ? GTC : DAY;
 	this.session = NORMAL;
 	this.orderStrategyType = SINGLE;
 	this.orderLegCollection = new ArrayList<OrderLegCollection>();
 	this.working = order.isWorking();
+
+	if (order.isStop()) {
+	    // this.price = "0";
+	    this.stopPrice = order.getPrice().toString();
+	    this.stopType = "MARK";
+	} else {
+	    this.price = order.getPrice().toString();
+	}
 
 	for (Position position : order.getPositionList()) {
 	    createLeg(position.getFullSymbol(), position.getQuantity(), open);
@@ -117,6 +127,14 @@ public class PostPlaceOrder {
 
     public List<OrderLegCollection> getOrderLegCollection() {
 	return orderLegCollection;
+    }
+
+    public String getStopPrice() {
+	return stopPrice;
+    }
+
+    public String getStopType() {
+	return stopType;
     }
 
     public int getOrderId() {

@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.kutsuki.zerotwo.portfolio.OptionType;
 import org.kutsuki.zerotwo.portfolio.OrderModel;
 
-// TODO check add stop, add stop limt, add market
 public abstract class AbstractSpread {
     private static final DateTimeFormatter FORMATTER = new DateTimeFormatterBuilder().parseCaseInsensitive()
 	    .appendPattern("d MMM yy").toFormatter(Locale.ENGLISH);

@@ -128,6 +128,20 @@ public class OrderSheetHelper extends AbstractSheets {
 	ValueRange body = new ValueRange();
 	body.setValues(writeRowList);
 	writeSheet(sheetId, WRITE_RANGE, body);
+
+	sendEmail(dataList);
+    }
+
+    private void sendEmail(List<Object> dataList) {
+	StringBuilder sb = new StringBuilder();
+	sb.append('#');
+	sb.append(dataList.get(0));
+	sb.append(StringUtils.SPACE);
+	sb.append(dataList.get(5));
+	sb.append(StringUtils.SPACE);
+	sb.append('@');
+	sb.append(dataList.get(8));
+	getEmailService().email(sb.toString(), dataList.get(3) + " Filled");
     }
 
     private String getAction(OrderModel order) {

@@ -90,13 +90,56 @@ public class OrderManager {
 	skipList.add(tradeId);
     }
 
-    public void placeOrder(OrderModel order) {
+    public void placeStopOrder(OrderModel order) {
 	int tradeId = 0;
 	if (!order.getPositionList().isEmpty()) {
 	    tradeId = order.getPositionList().get(0).getTradeId();
 	}
 
 	if (!skipList.contains(tradeId)) {
+	    refreshToken();
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_JSON);
+	    headers.set(AUTHORIZATION, BEARER + token);
+
+	    PostPlaceOrder post = new PostPlaceOrder(order, isOpen(order));
+	    HttpEntity<String> entity = new HttpEntity<String>(post.toString(), headers);
+
+	    if (!workingList.contains(post.getKey())) {
+		try {
+		    RestTemplate restTemplate = new RestTemplate();
+		    ResponseEntity<String> response = restTemplate.exchange(orderLink, HttpMethod.POST, entity,
+			    String.class);
+		    if (response.getStatusCodeValue() == 201) {
+			System.out.println(response.getStatusCodeValue());
+//			if (order.isWorking()) {
+//			    workingList.add(post.getKey());
+//			} else {
+//			    queuedOrder(post, order);
+//			}
+		    } else {
+			service.email("Error placing order: " + response.getStatusCodeValue(), response.getBody());
+		    }
+		} catch (RestClientException e) {
+		    e.printStackTrace();
+		    // service.emailException("Error placing order: " + order.getSpread(), e);
+		}
+	    } else {
+		workingList.remove(post.getKey());
+	    }
+	}
+    }
+
+    public void placeOrder(OrderModel order) {
+	int tradeId = 0;
+	if (!order.getPositionList().isEmpty()) {
+	    tradeId = order.getPositionList().get(0).getTradeId();
+	}
+
+	if (order.isStop()) {
+	    service.email(order.getSymbol() + " Stop Order Unsupported!", order.getSpread());
+	} else if (!skipList.contains(tradeId)) {
 	    refreshToken();
 
 	    HttpHeaders headers = new HttpHeaders();
@@ -220,11 +263,11 @@ public class OrderManager {
     private void queuedOrder(PostPlaceOrder placeOrder, OrderModel order) {
 	Thread thread = new Thread() {
 	    public void run() {
-		boolean queued = false;
+		boolean queued = true;
 		int i = 0;
 
-		while (!queued && i < 4) {
-		    // replace order?
+		while (queued && i < 4) {
+		    // TODO replace order?
 
 		    HttpHeaders headers = new HttpHeaders();
 		    headers.setContentType(MediaType.APPLICATION_JSON);
@@ -236,49 +279,48 @@ public class OrderManager {
 			ResponseEntity<PostGetOrder[]> response = restTemplate.exchange(orderLink + STATUS_QUEUED,
 				HttpMethod.GET, entity, PostGetOrder[].class);
 
+			boolean found = false;
 			for (PostGetOrder order : response.getBody()) {
 			    StringBuilder key = new StringBuilder();
 			    for (OrderLegCollection leg : order.getOrderLegCollection()) {
 				key.append(leg.getInstrument().getSymbol());
 			    }
 
-			    if (StringUtils.equals(placeOrder.getKey(), key.toString())
-				    && placeOrder.getOrderId() == 0) {
-				placeOrder.setOrderId(order.getOrderId());
-				queued = true;
+			    if (StringUtils.equals(placeOrder.getKey(), key.toString())) {
+				if (placeOrder.getOrderId() == 0) {
+				    placeOrder.setOrderId(order.getOrderId());
+				}
+
+				found = true;
 				sleep(2000);
 			    }
 			}
 
-			if (!queued) {
-			    for (OrderLegCollection leg : placeOrder.getOrderLegCollection()) {
-				TdaPosition position = positionMap.get(leg.getInstrument().getSymbol());
-				if (position != null) {
-				    position.updateQuantity(leg);
-				} else {
-				    position = new TdaPosition(leg);
-				}
-
-				position = repository.save(position);
-				positionMap.put(position.getSymbol(), position);
-				sheet.addOrder(order, placeOrder.getPrice());
-
-				StringBuilder sb = new StringBuilder();
-				sb.append(leg.getQuantity());
-				sb.append(StringUtils.SPACE);
-				sb.append(position.getSymbol());
-				sb.append(StringUtils.SPACE);
-				sb.append('@');
-				sb.append(placeOrder.getPrice());
-				service.email(sb.toString(), "Filled");
-			    }
+			if (found) {
+			    queued = false;
 			}
 		    } catch (RestClientException | InterruptedException e) {
 			service.emailException("Error getting Queued Orders!", e);
 		    }
+
+		    i++;
 		}
 
-		i++;
+		if (!queued) {
+		    for (OrderLegCollection leg : placeOrder.getOrderLegCollection()) {
+			TdaPosition position = positionMap.get(leg.getInstrument().getSymbol());
+			if (position != null) {
+			    position.updateQuantity(leg);
+			} else {
+			    position = new TdaPosition(leg);
+			}
+
+			position = repository.save(position);
+			positionMap.put(position.getSymbol(), position);
+			sheet.addOrder(order, placeOrder.getPrice());
+		    }
+		}
+
 	    }
 	};
 
