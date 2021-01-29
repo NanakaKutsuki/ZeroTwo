@@ -25,12 +25,10 @@ public class IronCondorSpread extends AbstractSpread {
 	String orderType = parseOrderType(getDataList().get(9), quantity);
 
 	OrderModel order = createOrder(orderType, price);
-	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, isAM(), strikeList.get(0), type.get(0)));
-	order.addPosition(
-		new Position(getTradeId(), -quantity, symbol, expiry, isAM(), strikeList.get(1), type.get(0)));
-	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, isAM(), strikeList.get(2), type.get(1)));
-	order.addPosition(
-		new Position(getTradeId(), -quantity, symbol, expiry, isAM(), strikeList.get(3), type.get(1)));
+	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, strikeList.get(0), type.get(0)));
+	order.addPosition(new Position(getTradeId(), -quantity, symbol, expiry, strikeList.get(1), type.get(0)));
+	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, strikeList.get(2), type.get(1)));
+	order.addPosition(new Position(getTradeId(), -quantity, symbol, expiry, strikeList.get(3), type.get(1)));
 
 	return order;
     }

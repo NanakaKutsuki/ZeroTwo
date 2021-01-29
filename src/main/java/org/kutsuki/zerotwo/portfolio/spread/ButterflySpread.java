@@ -23,10 +23,10 @@ public class ButterflySpread extends AbstractSpread {
 	String orderType = parseOrderType(getDataList().get(8), quantity);
 
 	OrderModel order = createOrder(orderType, price);
-	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, isAM(), strikeList.get(0), type));
+	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, strikeList.get(0), type));
 	int qty2 = -quantity * 2;
-	order.addPosition(new Position(getTradeId(), qty2, symbol, expiry, isAM(), strikeList.get(1), type));
-	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, isAM(), strikeList.get(2), type));
+	order.addPosition(new Position(getTradeId(), qty2, symbol, expiry, strikeList.get(1), type));
+	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, strikeList.get(2), type));
 
 	return order;
     }

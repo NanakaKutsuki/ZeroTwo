@@ -25,15 +25,19 @@ public abstract class AbstractSpread {
     private static final String MARKET = "MARKET";
     private static final String NET_DEBIT = "NET_DEBIT";
     private static final String NET_CREDIT = "NET_CREDIT";
+    private static final String QUARTERLYS = "(Quarterlys)";
+    private static final String SPX = "SPX";
     private static final String STOP = "STP";
     private static final String WHEN = "WHEN";
     private static final String MARK_AT_OR_ABOVE = "MARK AT OR ABOVE ";
     private static final String MARK_AT_OR_BELOW = "MARK AT OR BELOW ";
+    private static final String WEEKLYS = "(Weeklys)";
 
     private BigDecimal conditionPrice;
-    private boolean am;
     private boolean gtc;
+    private boolean quarterlys;
     private boolean stop;
+    private boolean weeklys;
     private boolean working;
     private int tradeId;
     private List<String> dataList;
@@ -64,9 +68,11 @@ public abstract class AbstractSpread {
 	}
 
 	this.dataList = new ArrayList<String>(Arrays.asList(StringUtils.split(split, StringUtils.SPACE)));
-	this.am = getDataList().remove(AM);
+	getDataList().remove(AM);
 	this.gtc = getDataList().remove(GTC);
 	this.stop = getDataList().remove(STOP);
+	this.quarterlys = getDataList().remove(QUARTERLYS);
+	this.weeklys = getDataList().remove(WEEKLYS);
 	this.working = getDataList().remove(LIMIT) || this.stop || condition != 0;
 
 	return parseOrder();
@@ -78,10 +84,6 @@ public abstract class AbstractSpread {
 
     protected OrderModel createOrder(String spread, String orderType, BigDecimal price) {
 	return new OrderModel(spread, getComplex(), orderType, price, gtc, stop, working, condition);
-    }
-
-    protected boolean isAM() {
-	return am;
     }
 
     protected List<String> getDataList() {
@@ -184,11 +186,21 @@ public abstract class AbstractSpread {
     }
 
     protected String parseSymbol(String symbol) throws Exception {
+	String result = symbol;
+
 	if (StringUtils.length(symbol) == 0) {
 	    throw new Exception("Error parsing symbol: " + symbol);
 	}
 
-	return symbol;
+	if (StringUtils.equals(symbol, SPX)) {
+	    if (quarterlys) {
+		result = SPX + Character.toString('Q');
+	    } else if (weeklys) {
+		result = SPX + Character.toString('W');
+	    }
+	}
+
+	return result;
     }
 
     protected OptionType parseType(String type) throws Exception {

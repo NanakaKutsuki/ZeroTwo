@@ -28,8 +28,8 @@ public class DiagonalSpread extends AbstractSpread {
 	String orderType = parseOrderType(getDataList().get(10), quantity);
 
 	OrderModel order = createOrder(orderType, price);
-	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, isAM(), strikeList.get(0), type));
-	order.addPosition(new Position(getTradeId(), -quantity, symbol, expiry2, isAM(), strikeList.get(1), type));
+	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, strikeList.get(0), type));
+	order.addPosition(new Position(getTradeId(), -quantity, symbol, expiry2, strikeList.get(1), type));
 
 	return order;
     }

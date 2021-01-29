@@ -19,10 +19,8 @@ public class OrderHelper {
     private static final String BOT = "BOT ";
     private static final String BUY = "BUY ";
     private static final String HUNDRED = " 100 ";
-    private static final String QUARTERLYS = " (Quarterlys) ";
     private static final String SELL = "SELL ";
     private static final String SOLD = "SOLD ";
-    private static final String WEEKLYS = " (Weeklys) ";
 
     private List<AbstractSpread> spreadList;
 
@@ -43,10 +41,8 @@ public class OrderHelper {
 	List<OrderModel> orderList = new ArrayList<OrderModel>();
 
 	// remove unecessary data
-	message = StringUtils.replace(message, HUNDRED, StringUtils.SPACE);
-	message = StringUtils.replace(message, QUARTERLYS, StringUtils.SPACE);
-	message = StringUtils.replace(message, WEEKLYS, StringUtils.SPACE);
 	message = StringUtils.replace(message, AT, Character.toString('@'));
+	message = StringUtils.replace(message, HUNDRED, StringUtils.SPACE);
 
 	// parse tradeId
 	int tradeId = -1;

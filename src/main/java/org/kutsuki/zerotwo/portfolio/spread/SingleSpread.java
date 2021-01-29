@@ -23,7 +23,7 @@ public class SingleSpread extends AbstractSpread {
 	String orderType = LIMIT;
 
 	OrderModel order = createOrder(type.toString(), orderType, price);
-	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, isAM(), strike, type));
+	order.addPosition(new Position(getTradeId(), quantity, symbol, expiry, strike, type));
 
 	return order;
     }

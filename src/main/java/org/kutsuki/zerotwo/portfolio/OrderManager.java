@@ -3,7 +3,6 @@ package org.kutsuki.zerotwo.portfolio;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -103,8 +102,10 @@ public class OrderManager {
 	    headers.setContentType(MediaType.APPLICATION_JSON);
 	    headers.set(AUTHORIZATION, BEARER + token);
 
-	    PostPlaceOrder post = new PostPlaceOrder(order, isOpen(order));
+	    setOpens(order);
+	    PostPlaceOrder post = new PostPlaceOrder(order);
 	    HttpEntity<String> entity = new HttpEntity<String>(post.toString(), headers);
+	    System.out.println(post.toString());
 
 	    if (!workingList.contains(post.getKey())) {
 		try {
@@ -146,7 +147,8 @@ public class OrderManager {
 	    headers.setContentType(MediaType.APPLICATION_JSON);
 	    headers.set(AUTHORIZATION, BEARER + token);
 
-	    PostPlaceOrder post = new PostPlaceOrder(order, isOpen(order));
+	    setOpens(order);
+	    PostPlaceOrder post = new PostPlaceOrder(order);
 	    HttpEntity<String> entity = new HttpEntity<String>(post.toString(), headers);
 
 	    if (!workingList.contains(post.getKey())) {
@@ -201,7 +203,7 @@ public class OrderManager {
 	this.positionMap.clear();
 	List<TdaPosition> removeList = new ArrayList<TdaPosition>();
 	for (TdaPosition position : repository.findAll()) {
-	    if (position.getExpiry().isAfter(LocalDate.now())) {
+	    if (position.getExpiry().isAfter(LocalDate.now().minusDays(1))) {
 		this.positionMap.put(position.getSymbol(), position);
 	    } else {
 		removeList.add(position);
@@ -239,25 +241,20 @@ public class OrderManager {
 	}
     }
 
-    private boolean isOpen(OrderModel order) {
-	boolean open = false;
-
-	Iterator<Position> itr = order.getPositionList().iterator();
-	while (!open && itr.hasNext()) {
-	    Position position = itr.next();
-
+    private void setOpens(OrderModel order) {
+	for (Position position : order.getPositionList()) {
 	    TdaPosition tda = positionMap.get(position.getFullSymbol());
 	    if (tda != null) {
 		if ((tda.getQuantity() > 0 && position.getQuantity() > 0)
 			|| (tda.getQuantity() < 0 && position.getQuantity() < 0)) {
-		    open = true;
+		    position.setOpen(true);
+		} else {
+		    position.setOpen(false);
 		}
 	    } else {
-		open = true;
+		position.setOpen(true);
 	    }
 	}
-
-	return open;
     }
 
     private void queuedOrder(PostPlaceOrder placeOrder, OrderModel order) {
@@ -266,7 +263,7 @@ public class OrderManager {
 		boolean queued = true;
 		int i = 0;
 
-		while (queued && i < 4) {
+		while (queued && i < 10) {
 		    // TODO replace order?
 
 		    HttpHeaders headers = new HttpHeaders();
@@ -319,11 +316,40 @@ public class OrderManager {
 			positionMap.put(position.getSymbol(), position);
 			sheet.addOrder(order, placeOrder.getPrice());
 		    }
+		} else {
+		    service.email(order.getSymbol(), "Still sitting in working!");
 		}
 
 	    }
 	};
 
 	thread.start();
+    }
+
+    public void checkOrders() {
+	refreshToken();
+
+	HttpHeaders headers = new HttpHeaders();
+	headers.setContentType(MediaType.APPLICATION_JSON);
+	headers.set(AUTHORIZATION, BEARER + token);
+
+	try {
+	    HttpEntity<String> entity = new HttpEntity<String>(headers);
+	    RestTemplate restTemplate = new RestTemplate();
+	    ResponseEntity<PostGetOrder[]> response = restTemplate.exchange(orderLink + STATUS_QUEUED, HttpMethod.GET,
+		    entity, PostGetOrder[].class);
+
+	    for (PostGetOrder order : response.getBody()) {
+		StringBuilder key = new StringBuilder();
+		for (OrderLegCollection leg : order.getOrderLegCollection()) {
+		    key.append(leg.getInstrument().getSymbol());
+		}
+
+		System.out.println(key);
+	    }
+	} catch (RestClientException e) {
+	    e.printStackTrace();
+
+	}
     }
 }

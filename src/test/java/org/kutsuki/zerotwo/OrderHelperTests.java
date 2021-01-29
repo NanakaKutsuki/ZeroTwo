@@ -27,20 +27,19 @@ public class OrderHelperTests {
 
 	OrderModel actual = helper.createOrders(test1).get(0);
 	List<Position> expected = new ArrayList<Position>();
-	expected.add(new Position(456, -2, "NFLX", LocalDate.of(2020, 10, 16), false, BigDecimal.valueOf(585),
-		OptionType.CALL));
-	expected.add(new Position(456, 6, "NFLX", LocalDate.of(2020, 10, 16), false, BigDecimal.valueOf(600),
-		OptionType.CALL));
+	expected.add(
+		new Position(456, -2, "NFLX", LocalDate.of(2020, 10, 16), BigDecimal.valueOf(585), OptionType.CALL));
+	expected.add(
+		new Position(456, 6, "NFLX", LocalDate.of(2020, 10, 16), BigDecimal.valueOf(600), OptionType.CALL));
 	testOrder(actual, expected, "BACKRATIO", "NFLX", BigDecimal.valueOf(.05), "NET_DEBIT");
 
 	String test2 = "#455 NEW SOLD -6 1/2 BACKRATIO QQQ 100 16 OCT 20 285/290 CALL @-.52db CBOE";
 
 	actual = helper.createOrders(test2).get(0);
 	expected = new ArrayList<Position>();
-	expected.add(new Position(455, 6, "QQQ", LocalDate.of(2020, 10, 16), false, BigDecimal.valueOf(285),
-		OptionType.CALL));
-	expected.add(new Position(455, -12, "QQQ", LocalDate.of(2020, 10, 16), false, BigDecimal.valueOf(290),
-		OptionType.CALL));
+	expected.add(new Position(455, 6, "QQQ", LocalDate.of(2020, 10, 16), BigDecimal.valueOf(285), OptionType.CALL));
+	expected.add(
+		new Position(455, -12, "QQQ", LocalDate.of(2020, 10, 16), BigDecimal.valueOf(290), OptionType.CALL));
 	testOrder(actual, expected, "BACKRATIO", "QQQ", BigDecimal.valueOf(-.52), "NET_DEBIT");
     }
 
@@ -50,23 +49,20 @@ public class OrderHelperTests {
 
 	OrderModel actual = helper.createOrders(test1).get(0);
 	List<Position> expected = new ArrayList<Position>();
-	expected.add(new Position(462, 1, "SPX", LocalDate.of(2020, 10, 28), false, BigDecimal.valueOf(3480),
-		OptionType.CALL));
-	expected.add(new Position(462, -2, "SPX", LocalDate.of(2020, 10, 28), false, BigDecimal.valueOf(3490),
-		OptionType.CALL));
-	expected.add(new Position(462, 1, "SPX", LocalDate.of(2020, 10, 28), false, BigDecimal.valueOf(3540),
-		OptionType.CALL));
-	testOrder(actual, expected, "BUTTERFLY", "SPX", BigDecimal.valueOf(-.90), "NET_CREDIT");
+	expected.add(
+		new Position(462, 1, "SPXW", LocalDate.of(2020, 10, 28), BigDecimal.valueOf(3480), OptionType.CALL));
+	expected.add(
+		new Position(462, -2, "SPXW", LocalDate.of(2020, 10, 28), BigDecimal.valueOf(3490), OptionType.CALL));
+	expected.add(
+		new Position(462, 1, "SPXW", LocalDate.of(2020, 10, 28), BigDecimal.valueOf(3540), OptionType.CALL));
+	testOrder(actual, expected, "BUTTERFLY", "SPXW", BigDecimal.valueOf(-.90), "NET_CREDIT");
 
 	String test2 = "#431 SOLD -2 BUTTERFLY TSLA 100 (Weeklys) 4 SEP 20 580/600/680 CALL @-.10db CBOE";
 	actual = helper.createOrders(test2).get(0);
 	expected = new ArrayList<Position>();
-	expected.add(new Position(431, -2, "TSLA", LocalDate.of(2020, 9, 4), false, BigDecimal.valueOf(580),
-		OptionType.CALL));
-	expected.add(new Position(431, 4, "TSLA", LocalDate.of(2020, 9, 4), false, BigDecimal.valueOf(600),
-		OptionType.CALL));
-	expected.add(new Position(431, -2, "TSLA", LocalDate.of(2020, 9, 4), false, BigDecimal.valueOf(680),
-		OptionType.CALL));
+	expected.add(new Position(431, -2, "TSLA", LocalDate.of(2020, 9, 4), BigDecimal.valueOf(580), OptionType.CALL));
+	expected.add(new Position(431, 4, "TSLA", LocalDate.of(2020, 9, 4), BigDecimal.valueOf(600), OptionType.CALL));
+	expected.add(new Position(431, -2, "TSLA", LocalDate.of(2020, 9, 4), BigDecimal.valueOf(680), OptionType.CALL));
 	testOrder(actual, expected, "BUTTERFLY", "TSLA", BigDecimal.valueOf(-.10), "NET_DEBIT");
     }
 
@@ -76,28 +72,25 @@ public class OrderHelperTests {
 
 	OrderModel actual = helper.createOrders(test1).get(0);
 	List<Position> expected = new ArrayList<Position>();
-	expected.add(new Position(441, 2, "SPX", LocalDate.of(2020, 9, 18), false, BigDecimal.valueOf(3470),
-		OptionType.CALL));
-	expected.add(new Position(441, -2, "SPX", LocalDate.of(2020, 9, 18), false, BigDecimal.valueOf(3475),
-		OptionType.CALL));
-	expected.add(new Position(441, -2, "SPX", LocalDate.of(2020, 9, 18), false, BigDecimal.valueOf(3490),
-		OptionType.CALL));
-	expected.add(new Position(441, 2, "SPX", LocalDate.of(2020, 9, 18), false, BigDecimal.valueOf(3555),
-		OptionType.CALL));
+	expected.add(new Position(441, 2, "SPX", LocalDate.of(2020, 9, 18), BigDecimal.valueOf(3470), OptionType.CALL));
+	expected.add(
+		new Position(441, -2, "SPX", LocalDate.of(2020, 9, 18), BigDecimal.valueOf(3475), OptionType.CALL));
+	expected.add(
+		new Position(441, -2, "SPX", LocalDate.of(2020, 9, 18), BigDecimal.valueOf(3490), OptionType.CALL));
+	expected.add(new Position(441, 2, "SPX", LocalDate.of(2020, 9, 18), BigDecimal.valueOf(3555), OptionType.CALL));
 	testOrder(actual, expected, "CONDOR", "SPX", BigDecimal.valueOf(-.95), "NET_CREDIT");
 
 	String test2 = "#400 SOLD -1 CONDOR AAPL 10 JUL 20 365/370/372.5/377.5 CALL @1.28 CBOE  Closing out here.  We only have one unit officially and AAPL is breaking to new ATH.";
 
 	actual = helper.createOrders(test2).get(0);
 	expected = new ArrayList<Position>();
-	expected.add(new Position(400, -1, "AAPL", LocalDate.of(2020, 7, 10), false, BigDecimal.valueOf(365),
-		OptionType.CALL));
-	expected.add(new Position(400, 1, "AAPL", LocalDate.of(2020, 7, 10), false, BigDecimal.valueOf(370),
-		OptionType.CALL));
-	expected.add(new Position(400, 1, "AAPL", LocalDate.of(2020, 7, 10), false, BigDecimal.valueOf(372.5),
-		OptionType.CALL));
-	expected.add(new Position(400, -1, "AAPL", LocalDate.of(2020, 7, 10), false, BigDecimal.valueOf(377.5),
-		OptionType.CALL));
+	expected.add(
+		new Position(400, -1, "AAPL", LocalDate.of(2020, 7, 10), BigDecimal.valueOf(365), OptionType.CALL));
+	expected.add(new Position(400, 1, "AAPL", LocalDate.of(2020, 7, 10), BigDecimal.valueOf(370), OptionType.CALL));
+	expected.add(
+		new Position(400, 1, "AAPL", LocalDate.of(2020, 7, 10), BigDecimal.valueOf(372.5), OptionType.CALL));
+	expected.add(
+		new Position(400, -1, "AAPL", LocalDate.of(2020, 7, 10), BigDecimal.valueOf(377.5), OptionType.CALL));
 	testOrder(actual, expected, "CONDOR", "AAPL", BigDecimal.valueOf(1.28), "NET_CREDIT");
     }
 
@@ -107,20 +100,16 @@ public class OrderHelperTests {
 
 	OrderModel actual = helper.createOrders(test1).get(0);
 	List<Position> expected = new ArrayList<Position>();
-	expected.add(new Position(436, -2, "UVXY", LocalDate.of(2020, 10, 16), false, BigDecimal.valueOf(17),
-		OptionType.PUT));
-	expected.add(new Position(436, 2, "UVXY", LocalDate.of(2020, 9, 25), false, BigDecimal.valueOf(19.5),
-		OptionType.PUT));
+	expected.add(new Position(436, -2, "UVXY", LocalDate.of(2020, 10, 16), BigDecimal.valueOf(17), OptionType.PUT));
+	expected.add(new Position(436, 2, "UVXY", LocalDate.of(2020, 9, 25), BigDecimal.valueOf(19.5), OptionType.PUT));
 	testOrder(actual, expected, "DIAGONAL", "UVXY", BigDecimal.valueOf(-.25), "NET_DEBIT");
 
 	String test2 = "#414 SOLD -2 DIAGONAL GLD 100 (Weeklys) 11 SEP 20/21 AUG 20 175/180 PUT @-.42db CBOE";
 
 	actual = helper.createOrders(test2).get(0);
 	expected = new ArrayList<Position>();
-	expected.add(new Position(414, -2, "GLD", LocalDate.of(2020, 9, 11), false, BigDecimal.valueOf(175),
-		OptionType.PUT));
-	expected.add(
-		new Position(414, 2, "GLD", LocalDate.of(2020, 8, 21), false, BigDecimal.valueOf(180), OptionType.PUT));
+	expected.add(new Position(414, -2, "GLD", LocalDate.of(2020, 9, 11), BigDecimal.valueOf(175), OptionType.PUT));
+	expected.add(new Position(414, 2, "GLD", LocalDate.of(2020, 8, 21), BigDecimal.valueOf(180), OptionType.PUT));
 	testOrder(actual, expected, "DIAGONAL", "GLD", BigDecimal.valueOf(-.42), "NET_DEBIT");
     }
 
@@ -130,28 +119,23 @@ public class OrderHelperTests {
 
 	OrderModel actual = helper.createOrders(test1).get(0);
 	List<Position> expected = new ArrayList<Position>();
-	expected.add(new Position(467, -1, "AAPL", LocalDate.of(2020, 10, 30), false, BigDecimal.valueOf(110),
-		OptionType.CALL));
-	expected.add(new Position(467, 1, "AAPL", LocalDate.of(2020, 10, 30), false, BigDecimal.valueOf(111),
-		OptionType.CALL));
-	expected.add(new Position(467, -1, "AAPL", LocalDate.of(2020, 10, 30), false, BigDecimal.valueOf(110),
-		OptionType.PUT));
-	expected.add(new Position(467, 1, "AAPL", LocalDate.of(2020, 10, 30), false, BigDecimal.valueOf(109),
-		OptionType.PUT));
+	expected.add(
+		new Position(467, -1, "AAPL", LocalDate.of(2020, 10, 30), BigDecimal.valueOf(110), OptionType.CALL));
+	expected.add(
+		new Position(467, 1, "AAPL", LocalDate.of(2020, 10, 30), BigDecimal.valueOf(111), OptionType.CALL));
+	expected.add(
+		new Position(467, -1, "AAPL", LocalDate.of(2020, 10, 30), BigDecimal.valueOf(110), OptionType.PUT));
+	expected.add(new Position(467, 1, "AAPL", LocalDate.of(2020, 10, 30), BigDecimal.valueOf(109), OptionType.PUT));
 	testOrder(actual, expected, "IRON CONDOR", "AAPL", BigDecimal.valueOf(.80), "NET_CREDIT");
 
 	String test2 = "#418 NEW SOLD -2 IRON CONDOR FB 7 AUG 20 250/252.5/250/247.5 CALL/PUT @2.09 CBOE  iron butterfly for staying flat into end of week.  good r/r.";
 
 	actual = helper.createOrders(test2).get(0);
 	expected = new ArrayList<Position>();
-	expected.add(
-		new Position(418, -2, "FB", LocalDate.of(2020, 8, 7), false, BigDecimal.valueOf(250), OptionType.CALL));
-	expected.add(new Position(418, 2, "FB", LocalDate.of(2020, 8, 7), false, BigDecimal.valueOf(252.5),
-		OptionType.CALL));
-	expected.add(
-		new Position(418, -2, "FB", LocalDate.of(2020, 8, 7), false, BigDecimal.valueOf(250), OptionType.PUT));
-	expected.add(
-		new Position(418, 2, "FB", LocalDate.of(2020, 8, 7), false, BigDecimal.valueOf(247.5), OptionType.PUT));
+	expected.add(new Position(418, -2, "FB", LocalDate.of(2020, 8, 7), BigDecimal.valueOf(250), OptionType.CALL));
+	expected.add(new Position(418, 2, "FB", LocalDate.of(2020, 8, 7), BigDecimal.valueOf(252.5), OptionType.CALL));
+	expected.add(new Position(418, -2, "FB", LocalDate.of(2020, 8, 7), BigDecimal.valueOf(250), OptionType.PUT));
+	expected.add(new Position(418, 2, "FB", LocalDate.of(2020, 8, 7), BigDecimal.valueOf(247.5), OptionType.PUT));
 	testOrder(actual, expected, "IRON CONDOR", "FB", BigDecimal.valueOf(2.09), "NET_CREDIT");
     }
 
@@ -161,16 +145,14 @@ public class OrderHelperTests {
 
 	OrderModel actual = helper.createOrders(test1).get(0);
 	List<Position> expected = new ArrayList<Position>();
-	expected.add(new Position(414, 2, "GLD", LocalDate.of(2020, 10, 9), false, BigDecimal.valueOf(184),
-		OptionType.CALL));
+	expected.add(new Position(414, 2, "GLD", LocalDate.of(2020, 10, 9), BigDecimal.valueOf(184), OptionType.CALL));
 	testOrder(actual, expected, "CALL", "GLD", BigDecimal.valueOf(.32), "LIMIT");
 
 	String test2 = "#414 SOLD -4 GLD 6 NOV 20 172 PUT @.38 BATS We are now full size on both sides for 11.6.  Will assess the credits on afternoon of 11.3 just before election.";
 
 	actual = helper.createOrders(test2).get(0);
 	expected = new ArrayList<Position>();
-	expected.add(new Position(414, -4, "GLD", LocalDate.of(2020, 11, 6), false, BigDecimal.valueOf(172),
-		OptionType.PUT));
+	expected.add(new Position(414, -4, "GLD", LocalDate.of(2020, 11, 6), BigDecimal.valueOf(172), OptionType.PUT));
 	testOrder(actual, expected, "PUT", "GLD", BigDecimal.valueOf(.38), "LIMIT");
     }
 
@@ -180,24 +162,24 @@ public class OrderHelperTests {
 
 	OrderModel actual = helper.createOrders(test1).get(0);
 	List<Position> expected = new ArrayList<Position>();
-	expected.add(new Position(424, 2, "SPX", LocalDate.of(2020, 8, 21), false, BigDecimal.valueOf(3405),
-		OptionType.CALL));
-	expected.add(new Position(424, -6, "SPX", LocalDate.of(2020, 8, 21), false, BigDecimal.valueOf(3420),
-		OptionType.CALL));
-	expected.add(new Position(424, 4, "SPX", LocalDate.of(2020, 8, 21), false, BigDecimal.valueOf(3450),
-		OptionType.CALL));
-	testOrder(actual, expected, "~BUTTERFLY", "SPX", BigDecimal.valueOf(.80), "NET_DEBIT");
+	expected.add(
+		new Position(424, 2, "SPXW", LocalDate.of(2020, 8, 21), BigDecimal.valueOf(3405), OptionType.CALL));
+	expected.add(
+		new Position(424, -6, "SPXW", LocalDate.of(2020, 8, 21), BigDecimal.valueOf(3420), OptionType.CALL));
+	expected.add(
+		new Position(424, 4, "SPXW", LocalDate.of(2020, 8, 21), BigDecimal.valueOf(3450), OptionType.CALL));
+	testOrder(actual, expected, "~BUTTERFLY", "SPXW", BigDecimal.valueOf(.80), "NET_DEBIT");
 
-	String test2 = "#423 SOLD -1 1/3/2 ~BUTTERFLY SPX 17 AUG 20 3385/3400/3415 CALL @ 3.00  S&P holding in middle of range close to open.  Close incrementally if you have more spreads.";
+	String test2 = "#423 SOLD -1 1/3/2 ~BUTTERFLY SPX 17 (Weeklys) AUG 20 3385/3400/3415 CALL @ 3.00  S&P holding in middle of range close to open.  Close incrementally if you have more spreads.";
 	actual = helper.createOrders(test2).get(0);
 	expected = new ArrayList<Position>();
-	expected.add(new Position(423, -1, "SPX", LocalDate.of(2020, 8, 17), false, BigDecimal.valueOf(3385),
-		OptionType.CALL));
-	expected.add(new Position(423, 3, "SPX", LocalDate.of(2020, 8, 17), false, BigDecimal.valueOf(3400),
-		OptionType.CALL));
-	expected.add(new Position(423, -2, "SPX", LocalDate.of(2020, 8, 17), false, BigDecimal.valueOf(3415),
-		OptionType.CALL));
-	testOrder(actual, expected, "~BUTTERFLY", "SPX", BigDecimal.valueOf(3.00), "NET_CREDIT");
+	expected.add(
+		new Position(423, -1, "SPXW", LocalDate.of(2020, 8, 17), BigDecimal.valueOf(3385), OptionType.CALL));
+	expected.add(
+		new Position(423, 3, "SPXW", LocalDate.of(2020, 8, 17), BigDecimal.valueOf(3400), OptionType.CALL));
+	expected.add(
+		new Position(423, -2, "SPXW", LocalDate.of(2020, 8, 17), BigDecimal.valueOf(3415), OptionType.CALL));
+	testOrder(actual, expected, "~BUTTERFLY", "SPXW", BigDecimal.valueOf(3.00), "NET_CREDIT");
     }
 
     @Test
@@ -206,20 +188,17 @@ public class OrderHelperTests {
 
 	OrderModel actual = helper.createOrders(test1).get(0);
 	List<Position> expected = new ArrayList<Position>();
-	expected.add(new Position(458, 1, "SPX", LocalDate.of(2020, 10, 21), false, BigDecimal.valueOf(3375),
-		OptionType.PUT));
-	expected.add(new Position(458, -1, "SPX", LocalDate.of(2020, 10, 21), false, BigDecimal.valueOf(3365),
-		OptionType.PUT));
+	expected.add(new Position(458, 1, "SPX", LocalDate.of(2020, 10, 21), BigDecimal.valueOf(3375), OptionType.PUT));
+	expected.add(
+		new Position(458, -1, "SPX", LocalDate.of(2020, 10, 21), BigDecimal.valueOf(3365), OptionType.PUT));
 	testOrder(actual, expected, "VERTICAL", "SPX", BigDecimal.valueOf(1.45), "NET_DEBIT");
 
 	String test2 = "#426 SOLD -2 VERTICAL BABA 100 (Weeklys) 4 SEP 20 280/285 CALL @2.50 PHLX  Closing this early for small gain, short calls remain open.  Don't like market long here.";
 
 	actual = helper.createOrders(test2).get(0);
 	expected = new ArrayList<Position>();
-	expected.add(new Position(426, -2, "BABA", LocalDate.of(2020, 9, 4), false, BigDecimal.valueOf(280),
-		OptionType.CALL));
-	expected.add(new Position(426, 2, "BABA", LocalDate.of(2020, 9, 4), false, BigDecimal.valueOf(285),
-		OptionType.CALL));
+	expected.add(new Position(426, -2, "BABA", LocalDate.of(2020, 9, 4), BigDecimal.valueOf(280), OptionType.CALL));
+	expected.add(new Position(426, 2, "BABA", LocalDate.of(2020, 9, 4), BigDecimal.valueOf(285), OptionType.CALL));
 	testOrder(actual, expected, "VERTICAL", "BABA", BigDecimal.valueOf(2.50), "NET_CREDIT");
     }
 
@@ -229,15 +208,12 @@ public class OrderHelperTests {
 
 	List<OrderModel> actual = helper.createOrders(test1);
 	List<Position> expected = new ArrayList<Position>();
-	expected.add(new Position(527, -2, "RIOT", LocalDate.of(2021, 1, 22), false, BigDecimal.valueOf(16),
-		OptionType.PUT));
+	expected.add(new Position(527, -2, "RIOT", LocalDate.of(2021, 1, 22), BigDecimal.valueOf(16), OptionType.PUT));
 	List<Position> expected2 = new ArrayList<Position>();
-	expected2.add(new Position(527, 1, "RIOT", LocalDate.of(2021, 1, 22), false, BigDecimal.valueOf(25),
-		OptionType.CALL));
-	expected2.add(new Position(527, -2, "RIOT", LocalDate.of(2021, 1, 22), false, BigDecimal.valueOf(30),
-		OptionType.CALL));
-	expected2.add(new Position(527, 1, "RIOT", LocalDate.of(2021, 1, 22), false, BigDecimal.valueOf(35),
-		OptionType.CALL));
+	expected2.add(new Position(527, 1, "RIOT", LocalDate.of(2021, 1, 22), BigDecimal.valueOf(25), OptionType.CALL));
+	expected2
+		.add(new Position(527, -2, "RIOT", LocalDate.of(2021, 1, 22), BigDecimal.valueOf(30), OptionType.CALL));
+	expected2.add(new Position(527, 1, "RIOT", LocalDate.of(2021, 1, 22), BigDecimal.valueOf(35), OptionType.CALL));
 	testOrder(actual.get(0), expected, "PUT", "RIOT", BigDecimal.valueOf(.30), "LIMIT", true, false, true, 0);
 	testOrder(actual.get(1), expected2, "BUTTERFLY", "RIOT", BigDecimal.valueOf(.65), "NET_DEBIT", true, false,
 		true, 0);
@@ -246,11 +222,10 @@ public class OrderHelperTests {
 
 	actual = helper.createOrders(test2);
 	expected = new ArrayList<Position>();
-	expected.add(new Position(414, -4, "GLD", LocalDate.of(2020, 11, 6), false, BigDecimal.valueOf(172),
-		OptionType.PUT));
+	expected.add(new Position(414, -4, "GLD", LocalDate.of(2020, 11, 6), BigDecimal.valueOf(172), OptionType.PUT));
 	expected2 = new ArrayList<Position>();
-	expected2.add(new Position(414, -2, "GLD", LocalDate.of(2020, 11, 13), false, BigDecimal.valueOf(186.5),
-		OptionType.CALL));
+	expected2.add(
+		new Position(414, -2, "GLD", LocalDate.of(2020, 11, 13), BigDecimal.valueOf(186.5), OptionType.CALL));
 	testOrder(actual.get(0), expected, "PUT", "GLD", BigDecimal.valueOf(.38), "LIMIT");
 	testOrder(actual.get(1), expected2, "CALL", "GLD", BigDecimal.valueOf(.39), "LIMIT");
     }
@@ -261,18 +236,16 @@ public class OrderHelperTests {
 
 	OrderModel actual = helper.createOrders(test1).get(0);
 	List<Position> expected = new ArrayList<Position>();
-	expected.add(new Position(519, -1, "SPY", LocalDate.of(2021, 1, 8), false, BigDecimal.valueOf(376),
-		OptionType.CALL));
-	expected.add(
-		new Position(519, 1, "SPY", LocalDate.of(2021, 1, 8), false, BigDecimal.valueOf(379), OptionType.CALL));
+	expected.add(new Position(519, -1, "SPY", LocalDate.of(2021, 1, 8), BigDecimal.valueOf(376), OptionType.CALL));
+	expected.add(new Position(519, 1, "SPY", LocalDate.of(2021, 1, 8), BigDecimal.valueOf(379), OptionType.CALL));
 	testOrder(actual, expected, "VERTICAL", "SPY", BigDecimal.valueOf(2.00), "NET_CREDIT", false, true, true, 0);
 
 	String test2 = "#520 WORKING SELL -5 TSLA 100 15 JAN 21 1020 CALL STP .65 Stop limit order on the 1020 calls that turns in to bwb if filled and clears debit on trade.";
 
 	actual = helper.createOrders(test2).get(0);
 	expected = new ArrayList<Position>();
-	expected.add(new Position(520, -5, "TSLA", LocalDate.of(2021, 1, 15), false, BigDecimal.valueOf(1020),
-		OptionType.CALL));
+	expected.add(
+		new Position(520, -5, "TSLA", LocalDate.of(2021, 1, 15), BigDecimal.valueOf(1020), OptionType.CALL));
 	testOrder(actual, expected, "CALL", "TSLA", BigDecimal.valueOf(.65), "LIMIT", false, true, true, 0);
     }
 
@@ -282,20 +255,17 @@ public class OrderHelperTests {
 
 	OrderModel actual = helper.createOrders(test1).get(0);
 	List<Position> expected = new ArrayList<Position>();
-	expected.add(new Position(465, 1, "SPX", LocalDate.of(2020, 10, 30), false, BigDecimal.valueOf(3415),
-		OptionType.CALL));
+	expected.add(
+		new Position(465, 1, "SPX", LocalDate.of(2020, 10, 30), BigDecimal.valueOf(3415), OptionType.CALL));
 	testOrder(actual, expected, "CALL", "SPX", BigDecimal.valueOf(3342.00), "LIMIT", false, true, true, 1);
 
 	String test2 = "#432 NEW WORKING SELL -1 BUTTERFLY NFLX 4 SEP 20 550/570/590 CALL MKT WHEN NFLX MARK AT OR BELOW 550.00";
 
 	actual = helper.createOrders(test2).get(0);
 	expected = new ArrayList<Position>();
-	expected.add(new Position(432, -1, "NFLX", LocalDate.of(2020, 9, 4), false, BigDecimal.valueOf(550),
-		OptionType.CALL));
-	expected.add(new Position(432, 2, "NFLX", LocalDate.of(2020, 9, 4), false, BigDecimal.valueOf(570),
-		OptionType.CALL));
-	expected.add(new Position(432, -1, "NFLX", LocalDate.of(2020, 9, 4), false, BigDecimal.valueOf(590),
-		OptionType.CALL));
+	expected.add(new Position(432, -1, "NFLX", LocalDate.of(2020, 9, 4), BigDecimal.valueOf(550), OptionType.CALL));
+	expected.add(new Position(432, 2, "NFLX", LocalDate.of(2020, 9, 4), BigDecimal.valueOf(570), OptionType.CALL));
+	expected.add(new Position(432, -1, "NFLX", LocalDate.of(2020, 9, 4), BigDecimal.valueOf(590), OptionType.CALL));
 	testOrder(actual, expected, "BUTTERFLY", "NFLX", BigDecimal.valueOf(550.00), "MARKET", false, false, true, -1);
     }
 
@@ -323,7 +293,6 @@ public class OrderHelperTests {
 	    Assertions.assertEquals(expectedP.getQuantity(), actualP.getQuantity(), "Wrong Quantity");
 	    Assertions.assertEquals(expectedP.getSymbol(), actualP.getSymbol(), "Wrong Position Symbol");
 	    Assertions.assertEquals(expectedP.getExpiry(), actualP.getExpiry(), "Wrong Expiry");
-	    Assertions.assertEquals(expectedP.isAM(), actualP.isAM(), "Wrong AM");
 	    Assertions.assertEquals(expectedP.getStrike(), actualP.getStrike(), "Wrong Strike");
 	    Assertions.assertEquals(expectedP.getType(), actualP.getType(), "Wrong Type");
 	}

@@ -19,6 +19,7 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 
 @RestController
 public class PlatinumReefRest extends AbstractSheets {
+    private static final String JOB_REQ = "Job Requisitions";
     private static final String PLATINUM_REEF = "PlatinumReef";
     private static final String RANGE = "PlatinumReef!A";
     private static final String CLEAR_RANGE = "PlatinumReef!A:A";
@@ -39,6 +40,11 @@ public class PlatinumReefRest extends AbstractSheets {
 	} catch (IOException e) {
 	    getEmailService().emailException("Unable to open: " + link, e);
 	}
+    }
+
+    @Scheduled(cron = "55 14 6 * * *")
+    public void closeBrowser() {
+	closeChrome(JOB_REQ);
     }
 
     @GetMapping("/rest/platinumReef/clear")

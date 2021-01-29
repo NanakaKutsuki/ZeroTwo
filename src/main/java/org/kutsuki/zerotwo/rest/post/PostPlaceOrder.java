@@ -42,7 +42,7 @@ public class PostPlaceOrder {
     @JsonIgnore
     private String key;
 
-    public PostPlaceOrder(OrderModel order, boolean open) {
+    public PostPlaceOrder(OrderModel order) {
 	this.complexOrderStrategyType = order.getComplex();
 	this.orderType = order.getOrderType();
 	this.duration = order.isGTC() ? GTC : DAY;
@@ -52,7 +52,7 @@ public class PostPlaceOrder {
 	this.working = order.isWorking();
 
 	if (order.isStop()) {
-	    // this.price = "0";
+	    this.price = order.getPrice().toString();
 	    this.stopPrice = order.getPrice().toString();
 	    this.stopType = "MARK";
 	} else {
@@ -60,7 +60,7 @@ public class PostPlaceOrder {
 	}
 
 	for (Position position : order.getPositionList()) {
-	    createLeg(position.getFullSymbol(), position.getQuantity(), open);
+	    createLeg(position.getFullSymbol(), position.getQuantity(), position.isOpen());
 	    this.key += position.getFullSymbol();
 	}
     }

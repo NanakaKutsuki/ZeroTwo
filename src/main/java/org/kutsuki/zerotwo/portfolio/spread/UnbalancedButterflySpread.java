@@ -26,11 +26,11 @@ public class UnbalancedButterflySpread extends AbstractSpread {
 
 	OrderModel order = createOrder(orderType, price);
 	int qty1 = quantity * ratioList.get(0).intValue();
-	order.addPosition(new Position(getTradeId(), qty1, symbol, expiry, isAM(), strikeList.get(0), type));
+	order.addPosition(new Position(getTradeId(), qty1, symbol, expiry, strikeList.get(0), type));
 	int qty2 = -quantity * ratioList.get(1).intValue();
-	order.addPosition(new Position(getTradeId(), qty2, symbol, expiry, isAM(), strikeList.get(1), type));
+	order.addPosition(new Position(getTradeId(), qty2, symbol, expiry, strikeList.get(1), type));
 	int qty3 = quantity * ratioList.get(2).intValue();
-	order.addPosition(new Position(getTradeId(), qty3, symbol, expiry, isAM(), strikeList.get(2), type));
+	order.addPosition(new Position(getTradeId(), qty3, symbol, expiry, strikeList.get(2), type));
 
 	return order;
     }

@@ -23,6 +23,7 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 public class RoadRallyRest extends AbstractSheets {
     private static final String ROAD_RALLY = "RoadRally";
     private static final String RANGE = "RoadRally!A";
+    private static final String TALEO = "Taleo";
     private static final String CLEAR_RANGE = "RoadRally!A2:E";
 
     private int index;
@@ -53,6 +54,11 @@ public class RoadRallyRest extends AbstractSheets {
 	} catch (IOException e) {
 	    getEmailService().emailException("Unable to open: " + link, e);
 	}
+    }
+
+    @Scheduled(cron = "55 18 6 * * *")
+    public void closeBrowser() {
+	closeChrome(TALEO);
     }
 
     @GetMapping("rest/roadrally/getNextLink")

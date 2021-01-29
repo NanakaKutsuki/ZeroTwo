@@ -23,18 +23,18 @@ public class Position extends AbstractDocument implements Comparable<Position> {
     private int quantity;
     private String symbol;
     private LocalDate expiry;
-    private boolean am; // SPX(W)
     private BigDecimal strike;
     private OptionType type;
     private String fullSymbol;
 
-    public Position(int tradeId, int quantity, String symbol, LocalDate expiry, boolean am, BigDecimal strike,
-	    OptionType type) {
+    @JsonIgnore
+    private boolean open;
+
+    public Position(int tradeId, int quantity, String symbol, LocalDate expiry, BigDecimal strike, OptionType type) {
 	this.tradeId = tradeId;
 	this.quantity = quantity;
 	this.symbol = symbol;
 	this.expiry = expiry;
-	this.am = am;
 	this.strike = strike;
 	this.type = type;
 
@@ -59,14 +59,10 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	    result = getExpiry().compareTo(rhs.getExpiry());
 
 	    if (result == 0) {
-		result = Boolean.compare(isAM(), rhs.isAM());
+		result = getStrike().compareTo(rhs.getStrike());
 
 		if (result == 0) {
-		    result = getStrike().compareTo(rhs.getStrike());
-
-		    if (result == 0) {
-			result = getType().compareTo(rhs.getType());
-		    }
+		    result = getType().compareTo(rhs.getType());
 		}
 	    }
 	}
@@ -90,11 +86,6 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	sb.append(StringUtils.SPACE);
 	sb.append('[');
 	sb.append(ORDER_DTF.format(getExpiry()));
-	if (isAM()) {
-	    sb.append(StringUtils.SPACE);
-	    sb.append('A');
-	    sb.append('M');
-	}
 	sb.append(']');
 	sb.append(StringUtils.SPACE);
 	sb.append(getStrike());
@@ -118,11 +109,6 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	sb.append(StringUtils.SPACE);
 	sb.append('[');
 	sb.append(ORDER_DTF.format(getExpiry()));
-	if (isAM()) {
-	    sb.append(StringUtils.SPACE);
-	    sb.append('A');
-	    sb.append('M');
-	}
 	sb.append(']');
 	sb.append(StringUtils.SPACE);
 	sb.append(getStrike());
@@ -158,10 +144,6 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 	return expiry;
     }
 
-    public boolean isAM() {
-	return am;
-    }
-
     public BigDecimal getStrike() {
 	return strike;
     }
@@ -180,5 +162,13 @@ public class Position extends AbstractDocument implements Comparable<Position> {
 
     public void setTradeId(int tradeId) {
 	this.tradeId = tradeId;
+    }
+
+    public boolean isOpen() {
+	return open;
+    }
+
+    public void setOpen(boolean open) {
+	this.open = open;
     }
 }

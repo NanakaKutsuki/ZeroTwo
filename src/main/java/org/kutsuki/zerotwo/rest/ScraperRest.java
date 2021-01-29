@@ -24,8 +24,14 @@ public class ScraperRest extends AbstractChrome {
     @Value("${scraper.hotel}")
     private String hotelLink;
 
+    @Value("${scraper.hotelName}")
+    private String hotelName;
+
     @Value("${scraper.shadow}")
     private String shadowLink;
+
+    @Value("${scraper.shadowName}")
+    private String shadowName;
 
     private boolean hotelOpen;
     private boolean tradingOpen;
@@ -38,17 +44,12 @@ public class ScraperRest extends AbstractChrome {
 
     @GetMapping("/rest/scraper/closeWindows")
     public void closeWindows() {
-	try {
-	    taskKillChrome();
-	    hotelOpen = false;
-	    tradingOpen = false;
-	} catch (Exception e) {
-	    service.emailException("Error closing Chrome!", e);
-	}
+	closeChrome(hotelName);
+	hotelOpen = false;
     }
 
     @Scheduled(cron = "55 */10 0,11-23 * * *")
-    public void closeWindowsIfBusy() {
+    public void closeHotelWindowsIfBusy() {
 	if (hotelOpen && StringUtils.isNotEmpty(httpGet(hotelLink))) {
 	    closeWindows();
 	}
@@ -85,6 +86,12 @@ public class ScraperRest extends AbstractChrome {
 		service.emailException("Error opening Trading Window: " + shadowLink, e);
 	    }
 	}
+    }
+
+    @Scheduled(cron = "0 0 19 * * MON-FRI")
+    public void closeTradingWindows() {
+	closeChrome(shadowName);
+	tradingOpen = false;
     }
 
     private String httpGet(String link) {
