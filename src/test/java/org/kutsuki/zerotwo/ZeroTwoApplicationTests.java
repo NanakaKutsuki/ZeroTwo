@@ -3,14 +3,14 @@ package org.kutsuki.zerotwo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.kutsuki.zerotwo.portfolio.OrderManager;
-import org.kutsuki.zerotwo.repository.PositionRepository;
+import org.kutsuki.zerotwo.repository.TdaPositionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class ZeroTwoApplicationTests {
     @Autowired
-    private PositionRepository repository;
+    private TdaPositionRepository repository;
 
     @Autowired
     private OrderManager manager;
@@ -24,11 +24,11 @@ public class ZeroTwoApplicationTests {
 //	boolean stop = true;
 //	OrderModel model = new OrderModel("VERTICAL", "VERTICAL", "NET_CREDIT", BigDecimal.valueOf(0.25), false, stop,
 //		false, 0);
-//	model.addPosition(new Position(424, -1, "INTC", LocalDate.of(2021, 2, 5), false, BigDecimal.valueOf(42),
-//		OptionType.CALL));
 //	model.addPosition(
-//		new Position(424, 1, "INTC", LocalDate.of(2021, 2, 5), false, BigDecimal.valueOf(43), OptionType.CALL));
-//
+//		new Position(424, -1, "INTC", LocalDate.of(2021, 2, 5), BigDecimal.valueOf(42), OptionType.CALL));
+//	model.addPosition(
+//		new Position(424, 1, "INTC", LocalDate.of(2021, 2, 5), BigDecimal.valueOf(43), OptionType.CALL));
+
 //	manager.placeStopOrder(model);
 
 	// repository.save(new TdaPosition("AAPL_020521P132", 4, LocalDate.of(2021, 2,

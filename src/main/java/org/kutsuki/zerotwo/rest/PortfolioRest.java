@@ -27,6 +27,7 @@ import org.kutsuki.zerotwo.rest.post.PostShadow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -85,6 +86,11 @@ public class PortfolioRest {
 	this.helper = new OrderHelper();
 	this.portfolioMap = new HashMap<String, Position>();
 	reloadCache();
+    }
+
+    @Scheduled(cron = "1 45 9 * * MON-FRI")
+    public void getSpxPut() {
+	manager.getSpxPut();
     }
 
     @GetMapping("/rest/portfolio/getLastChecked")

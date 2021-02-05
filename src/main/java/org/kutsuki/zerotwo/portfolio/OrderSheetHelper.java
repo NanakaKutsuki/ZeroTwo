@@ -26,6 +26,9 @@ public class OrderSheetHelper extends AbstractSheets {
     private static final String SUM = "=SUM(J";
     private static final String WRITE_RANGE = "Trading!A2:K";
 
+    private static final String SPX_RANGE = "SPX_012122P2000!A:E";
+    private static final String SPX_WRITE_RANGE = "SPX_012122P2000!A";
+
     @Value("${tda.sheetId}")
     private String sheetId;
 
@@ -42,6 +45,24 @@ public class OrderSheetHelper extends AbstractSheets {
 	}
     }
 
+    public void addSpx(String underlying, String price, String volatility, String vix) {
+	List<List<Object>> rowList = readSheet(sheetId, SPX_RANGE);
+	int nextRow = rowList.size() + 1;
+
+	List<List<Object>> writeRowList = new ArrayList<List<Object>>();
+	List<Object> dataList = new ArrayList<Object>();
+	dataList.add(LocalDate.now().toString());
+	dataList.add(underlying);
+	dataList.add(price);
+	dataList.add(volatility);
+	dataList.add(vix);
+	writeRowList.add(dataList);
+
+	ValueRange body = new ValueRange();
+	body.setValues(writeRowList);
+	writeSheet(sheetId, SPX_WRITE_RANGE + nextRow, body);
+    }
+
     public void addOrder(OrderModel order, String finalPrice) {
 	Position position = order.getPositionList().get(0);
 	String tradeId = Integer.toString(position.getTradeId());
@@ -52,16 +73,18 @@ public class OrderSheetHelper extends AbstractSheets {
 	int i = 0;
 	int insertIndex = 0;
 	while (!found && i < rowList.size()) {
-	    char first = String.valueOf(rowList.get(i).get(0)).charAt(0);
-	    if (first != '-') {
-		String value = String.valueOf(rowList.get(i).get(0));
+	    if (!rowList.get(i).isEmpty()) {
+		char first = String.valueOf(rowList.get(i).get(0)).charAt(0);
+		if (first != '-') {
+		    String value = String.valueOf(rowList.get(i).get(0));
 
-		if (!startFound && StringUtils.equals(value, tradeId)) {
-		    startFound = true;
+		    if (!startFound && StringUtils.equals(value, tradeId)) {
+			startFound = true;
+		    }
+		} else if (startFound && insertIndex == 0 && first == '-') {
+		    insertIndex = i;
+		    found = true;
 		}
-	    } else if (startFound && insertIndex == 0 && first == '-') {
-		insertIndex = i;
-		found = true;
 	    }
 
 	    i++;
@@ -78,8 +101,8 @@ public class OrderSheetHelper extends AbstractSheets {
 	dataList.add(position.getSymbol());
 	dataList.add(position.getExpiry().toString());
 	dataList.add(getSpread(order));
-	dataList.add(fillPrice.subtract(price));
-	dataList.add(fillPrice);
+	dataList.add(fillPrice.subtract(price).toString());
+	dataList.add(finalPrice);
 
 	List<List<Object>> writeRowList = new ArrayList<List<Object>>();
 	if (!found) {
@@ -94,33 +117,36 @@ public class OrderSheetHelper extends AbstractSheets {
 	found = false;
 	for (i = 0; i < writeRowList.size(); i++) {
 	    List<Object> newDataList = writeRowList.get(i);
-	    char value = String.valueOf(newDataList.get(0)).charAt(0);
 
-	    if (value != '-') {
-		newDataList.add(getCost(i + 2));
+	    if (!newDataList.isEmpty()) {
+		char value = String.valueOf(newDataList.get(0)).charAt(0);
 
-		if (!found) {
-		    int j = i + 1;
-		    while (!found && j < writeRowList.size()) {
-			value = String.valueOf(writeRowList.get(j).get(0)).charAt(0);
-			if (value == '-') {
+		if (value != '-') {
+		    newDataList.add(getCost(i + 2));
+
+		    if (!found) {
+			int j = i + 1;
+			while (!found && j < writeRowList.size()) {
+			    value = String.valueOf(writeRowList.get(j).get(0)).charAt(0);
+			    if (value == '-') {
+				newDataList.add(getSum(i + 2, j + 1));
+				found = true;
+			    }
+
+			    j++;
+			}
+
+			if (j == writeRowList.size()) {
 			    newDataList.add(getSum(i + 2, j + 1));
 			    found = true;
 			}
-
-			j++;
-		    }
-
-		    if (j == writeRowList.size()) {
-			newDataList.add(getSum(i + 2, j + 1));
-			found = true;
+		    } else {
+			newDataList.add(StringUtils.EMPTY);
 		    }
 		} else {
-		    newDataList.add(StringUtils.EMPTY);
+		    newDataList.addAll(emptyList);
+		    found = false;
 		}
-	    } else {
-		newDataList.addAll(emptyList);
-		found = false;
 	    }
 	}
 

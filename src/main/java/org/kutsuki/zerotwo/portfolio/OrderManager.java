@@ -1,5 +1,6 @@
 package org.kutsuki.zerotwo.portfolio;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,7 +19,9 @@ import org.kutsuki.zerotwo.repository.SkipRepository;
 import org.kutsuki.zerotwo.repository.TdaPositionRepository;
 import org.kutsuki.zerotwo.rest.post.PostGetOrder;
 import org.kutsuki.zerotwo.rest.post.PostPlaceOrder;
+import org.kutsuki.zerotwo.rest.post.PostSpx;
 import org.kutsuki.zerotwo.rest.post.PostToken;
+import org.kutsuki.zerotwo.rest.post.PostVix;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -32,8 +35,16 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 public class OrderManager {
+    private static final BigDecimal PENNY = new BigDecimal("0.01");
+    private static final BigDecimal SKIP_PRICE = new BigDecimal("350");
+    private static final String BACKRATIO = "BACKRATIO";
+    private static final String BUY = "BUY";
     private static final String AUTHORIZATION = "Authorization";
     private static final String BEARER = "Bearer ";
+    private static final String NET_DEBIT = "NET_DEBIT";
+    private static final String NET_CREDIT = "NET_CREDIT";
+    private static final String SELL = "SELL";
+    private static final String SINGLE = "SINGLE";
     private static final String STATUS_QUEUED = "?status=QUEUED";
 
     @Autowired
@@ -60,6 +71,12 @@ public class OrderManager {
     @Value("${tda.tokenLink}")
     private String tokenLink;
 
+    @Value("${tda.spxLink}")
+    private String spxLink;
+
+    @Value("${tda.vixLink}")
+    private String vixLink;
+
     private List<Integer> skipList;
     private List<String> workingList;
     private LocalDateTime expires;
@@ -82,11 +99,36 @@ public class OrderManager {
 	reloadCache();
     }
 
+    public void getSpxPut() {
+	refreshToken();
+
+	HttpHeaders headers = new HttpHeaders();
+	headers.setContentType(MediaType.APPLICATION_JSON);
+	headers.set(AUTHORIZATION, BEARER + token);
+
+	HttpEntity<String> entity = new HttpEntity<String>(headers);
+	RestTemplate restTemplate = new RestTemplate();
+	ResponseEntity<PostVix> response = restTemplate.exchange(vixLink, HttpMethod.GET, entity, PostVix.class);
+	String vix = response.getBody().getVix().getLastPrice();
+
+	restTemplate = new RestTemplate();
+	ResponseEntity<PostSpx> response2 = restTemplate.exchange(spxLink, HttpMethod.GET, entity, PostSpx.class);
+	String up = response2.getBody().getUnderlyingPrice();
+	String mark = response2.getBody().getPutExpDateMap().getPutExpDate().getStrikes()[0].getMark();
+	String volatility = response2.getBody().getPutExpDateMap().getPutExpDate().getStrikes()[0]
+		.getTheoreticalVolatility();
+
+	sheet.addSpx(up, mark, volatility, vix);
+    }
+
     public void addSkip(int tradeId) {
-	Skip skip = new Skip();
-	skip.setTradeId(tradeId);
-	skip = skipRepository.save(skip);
-	skipList.add(tradeId);
+	if (!skipList.contains(Integer.valueOf(tradeId))) {
+	    Skip skip = new Skip();
+	    skip.setTradeId(tradeId);
+	    skip = skipRepository.save(skip);
+	    skipList.add(tradeId);
+	    service.email(tradeId + " added to Skip List", skip.getId());
+	}
     }
 
     public void placeStopOrder(OrderModel order) {
@@ -138,6 +180,11 @@ public class OrderManager {
 	    tradeId = order.getPositionList().get(0).getTradeId();
 	}
 
+	setOpens(order);
+	PostPlaceOrder post = new PostPlaceOrder(order);
+
+	checkSkip(order);
+
 	if (order.isStop()) {
 	    service.email(order.getSymbol() + " Stop Order Unsupported!", order.getSpread());
 	} else if (!skipList.contains(tradeId)) {
@@ -147,8 +194,6 @@ public class OrderManager {
 	    headers.setContentType(MediaType.APPLICATION_JSON);
 	    headers.set(AUTHORIZATION, BEARER + token);
 
-	    setOpens(order);
-	    PostPlaceOrder post = new PostPlaceOrder(order);
 	    HttpEntity<String> entity = new HttpEntity<String>(post.toString(), headers);
 
 	    if (!workingList.contains(post.getKey())) {
@@ -257,6 +302,22 @@ public class OrderManager {
 	}
     }
 
+    private void checkSkip(OrderModel order) {
+	if (StringUtils.equals(order.getSpread(), BACKRATIO)) {
+	    Position position = order.getPositionList().get(1);
+
+	    if (position.isOpen() && position.getQuantity() < 0 && position.getStrike().compareTo(SKIP_PRICE) == 1) {
+		addSkip(position.getTradeId());
+	    }
+	} else if (StringUtils.equals(order.getSpread(), SINGLE)) {
+	    Position position = order.getPositionList().get(0);
+
+	    if (position.isOpen() && position.getQuantity() < 0 && position.getStrike().compareTo(SKIP_PRICE) == 1) {
+		addSkip(position.getTradeId());
+	    }
+	}
+    }
+
     private void queuedOrder(PostPlaceOrder placeOrder, OrderModel order) {
 	Thread thread = new Thread() {
 	    public void run() {
@@ -264,13 +325,31 @@ public class OrderManager {
 		int i = 0;
 
 		while (queued && i < 10) {
-		    // TODO replace order?
-
-		    HttpHeaders headers = new HttpHeaders();
-		    headers.setContentType(MediaType.APPLICATION_JSON);
-		    headers.set(AUTHORIZATION, BEARER + token);
-
 		    try {
+			if (i > 0) {
+			    BigDecimal price = new BigDecimal(placeOrder.getPrice());
+			    if (StringUtils.equals(placeOrder.getOrderType(), NET_DEBIT)) {
+				price = price.add(PENNY);
+			    } else if (StringUtils.equals(placeOrder.getOrderType(), NET_CREDIT)) {
+				price = price.subtract(PENNY);
+			    } else {
+				String ins = placeOrder.getOrderLegCollection().get(0).getInstruction();
+				if (StringUtils.startsWith(ins, BUY)) {
+				    price = price.add(PENNY);
+				} else if (StringUtils.startsWith(ins, SELL)) {
+				    price = price.subtract(PENNY);
+				}
+			    }
+
+			    placeOrder.setPrice(price.toString());
+			    replaceOrder(placeOrder);
+			    sleep(1000);
+			}
+
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			headers.set(AUTHORIZATION, BEARER + token);
+
 			HttpEntity<String> entity = new HttpEntity<String>(headers);
 			RestTemplate restTemplate = new RestTemplate();
 			ResponseEntity<PostGetOrder[]> response = restTemplate.exchange(orderLink + STATUS_QUEUED,
@@ -289,11 +368,11 @@ public class OrderManager {
 				}
 
 				found = true;
-				sleep(2000);
+				sleep(5000);
 			    }
 			}
 
-			if (found) {
+			if (!found) {
 			    queued = false;
 			}
 		    } catch (RestClientException | InterruptedException e) {
@@ -314,10 +393,11 @@ public class OrderManager {
 
 			position = repository.save(position);
 			positionMap.put(position.getSymbol(), position);
-			sheet.addOrder(order, placeOrder.getPrice());
 		    }
+
+		    sheet.addOrder(order, placeOrder.getPrice());
 		} else {
-		    service.email(order.getSymbol(), "Still sitting in working!");
+		    service.email(order.getSymbol(), "Still sitting in working!!");
 		}
 
 	    }

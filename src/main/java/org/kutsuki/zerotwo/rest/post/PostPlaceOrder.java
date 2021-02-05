@@ -152,4 +152,8 @@ public class PostPlaceOrder {
     public void setOrderId(int orderId) {
 	this.orderId = orderId;
     }
+
+    public void setPrice(String price) {
+	this.price = price;
+    }
 }
