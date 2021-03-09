@@ -15,6 +15,8 @@ import org.springframework.web.client.RestTemplate;
 
 @RestController
 public class ScraperRest extends AbstractChrome {
+    private static final String GOOGLE_CHROME = "Google Chrome";
+
     @Autowired
     private EmailService service;
 
@@ -24,27 +26,16 @@ public class ScraperRest extends AbstractChrome {
     @Value("${scraper.hotel}")
     private String hotelLink;
 
-    @Value("${scraper.hotelName}")
-    private String hotelName;
-
-    @Value("${scraper.shadow}")
-    private String shadowLink;
-
-    @Value("${scraper.shadowName}")
-    private String shadowName;
-
     private boolean hotelOpen;
-    private boolean tradingOpen;
 
     @PostConstruct
     public void postConstruct() {
 	this.hotelOpen = false;
-	this.tradingOpen = false;
     }
 
     @GetMapping("/rest/scraper/closeWindows")
     public void closeWindows() {
-	closeChrome(hotelName);
+	closeChrome(GOOGLE_CHROME);
 	hotelOpen = false;
     }
 
@@ -74,24 +65,6 @@ public class ScraperRest extends AbstractChrome {
 		}
 	    }
 	}
-    }
-
-    @Scheduled(cron = "*/10 * 9-18 * * MON-FRI")
-    public void openTradingWindow() {
-	if (!tradingOpen) {
-	    try {
-		openChrome(shadowLink);
-		tradingOpen = true;
-	    } catch (IOException e) {
-		service.emailException("Error opening Trading Window: " + shadowLink, e);
-	    }
-	}
-    }
-
-    @Scheduled(cron = "0 0 19 * * MON-FRI")
-    public void closeTradingWindows() {
-	closeChrome(shadowName);
-	tradingOpen = false;
     }
 
     private String httpGet(String link) {
