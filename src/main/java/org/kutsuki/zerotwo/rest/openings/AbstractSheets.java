@@ -127,6 +127,7 @@ public abstract class AbstractSheets extends AbstractChrome {
 	scopes.add(SheetsScopes.SPREADSHEETS);
 
 	// Build flow and trigger user authorization request.
+	// The token is actually on the C:/ when running locally
 	GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(transport, JSON_FACTORY,
 		clientSecrets, scopes).setDataStoreFactory(new FileDataStoreFactory(new File(TOKENS_DIRECTORY_PATH)))
 			.setAccessType(OFFLINE).build();
