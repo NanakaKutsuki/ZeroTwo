@@ -52,33 +52,38 @@ public class EitoRest extends AbstractSheets {
     @Scheduled(cron = "0 3 6 * * *")
     public void getOpenings() {
 	Account account = accountRepository.findByProject(EITO);
-	NtlmAuthenticator authenticator = new NtlmAuthenticator(account.getUsername(), account.getPassword());
-	Authenticator.setDefault(authenticator);
 
-	RestTemplate restTemplate = new RestTemplate();
-	HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-	restTemplate.setRequestFactory(requestFactory);
+	if (account.isActive()) {
+	    NtlmAuthenticator authenticator = new NtlmAuthenticator(account.getUsername(), account.getPassword());
+	    Authenticator.setDefault(authenticator);
 
-	String response = restTemplate.getForObject(link + DEFAULT_ASPX, String.class);
-	String id = StringUtils.substringBetween(response, ANNOUNCEMENTS, Character.toString('"'));
+	    RestTemplate restTemplate = new RestTemplate();
+	    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+	    restTemplate.setRequestFactory(requestFactory);
 
-	response = restTemplate.getForObject(link + ANNOUNCEMENTS + id, String.class);
-	String xlsx = StringUtils.substringBetween(response, ATTACHMENTS, Character.toString('"'));
+	    String response = restTemplate.getForObject(link + DEFAULT_ASPX, String.class);
+	    String id = StringUtils.substringBetween(response, ANNOUNCEMENTS, Character.toString('"'));
 
-	String filename = StringUtils.substringAfter(xlsx, Character.toString('_'));
-	filename = StringUtils.substringBeforeLast(filename, Character.toString('.'));
+	    response = restTemplate.getForObject(link + ANNOUNCEMENTS + id, String.class);
+	    String xlsx = StringUtils.substringBetween(response, ATTACHMENTS, Character.toString('"'));
 
-	LocalDate date = LocalDate.parse(filename, DTF);
-	LocalDate lastDate = LocalDate.parse(openingRest.getLastChecked(EITO));
+	    String filename = StringUtils.substringAfter(xlsx, Character.toString('_'));
+	    filename = StringUtils.substringBeforeLast(filename, Character.toString('.'));
 
-	if (date.isAfter(lastDate)) {
-	    byte[] byteResponse = restTemplate.getForObject(link + ATTACHMENTS + xlsx, byte[].class);
-	    InputStream is = new ByteArrayInputStream(byteResponse);
-	    parseWorkbook(is);
-	    openingRest.setLastChecked(EITO, date.toString());
+	    LocalDate date = LocalDate.parse(filename, DTF);
+	    LocalDate lastDate = LocalDate.parse(openingRest.getLastChecked(EITO));
+
+	    if (date.isAfter(lastDate)) {
+		byte[] byteResponse = restTemplate.getForObject(link + ATTACHMENTS + xlsx, byte[].class);
+		InputStream is = new ByteArrayInputStream(byteResponse);
+		parseWorkbook(is);
+		openingRest.setLastChecked(EITO, date.toString());
+	    }
+
+	    Authenticator.setDefault(null);
+	} else {
+	    openingRest.setLastCheckedDisabled(EITO);
 	}
-
-	Authenticator.setDefault(null);
     }
 
     private void parseWorkbook(InputStream is) {

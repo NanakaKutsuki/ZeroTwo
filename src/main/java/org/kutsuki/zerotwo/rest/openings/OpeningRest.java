@@ -17,8 +17,8 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 public class OpeningRest extends AbstractSheets {
     private static final String CLEAR_RANGE = "LastChecked!A2:B";
     private static final String RANGE = "LastChecked!A2";
+    private static final String DISABLED = "Disabled";
     private static final String THIS_LAST_CHECKED = "(THIS) Last Checked";
-    private static final String SHADOW = "Shadow";
 
     @Autowired
     private OpeningRepository repository;
@@ -31,12 +31,10 @@ public class OpeningRest extends AbstractSheets {
 	clearSheet(sheetId, CLEAR_RANGE);
 	List<List<Object>> writeRowList = new ArrayList<List<Object>>();
 	for (Opening opening : repository.findAll()) {
-	    if (!opening.getProject().equals(SHADOW)) {
-		List<Object> dataList = new ArrayList<Object>();
-		dataList.add(opening.getProject());
-		dataList.add(opening.getLastChecked());
-		writeRowList.add(dataList);
-	    }
+	    List<Object> dataList = new ArrayList<Object>();
+	    dataList.add(opening.getProject());
+	    dataList.add(opening.getLastChecked());
+	    writeRowList.add(dataList);
 	}
 
 	List<Object> dataList = new ArrayList<Object>();
@@ -62,5 +60,9 @@ public class OpeningRest extends AbstractSheets {
 
     public void setLastCheckedNow(String project) {
 	setLastChecked(project, LocalDate.now().toString());
+    }
+
+    public void setLastCheckedDisabled(String project) {
+	setLastChecked(project, DISABLED);
     }
 }

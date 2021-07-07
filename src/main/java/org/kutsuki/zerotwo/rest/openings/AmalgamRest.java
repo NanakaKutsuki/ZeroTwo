@@ -49,32 +49,37 @@ public class AmalgamRest extends AbstractSheets {
     @Scheduled(cron = "0 0 6 * * *")
     public void getOpenings() {
 	Account account = accountRepository.findByProject(AMALGAM);
-	NtlmAuthenticator authenticator = new NtlmAuthenticator(account.getUsername(), account.getPassword());
-	Authenticator.setDefault(authenticator);
 
-	RestTemplate restTemplate = new RestTemplate();
-	HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-	restTemplate.setRequestFactory(requestFactory);
+	if (account.isActive()) {
+	    NtlmAuthenticator authenticator = new NtlmAuthenticator(account.getUsername(), account.getPassword());
+	    Authenticator.setDefault(authenticator);
 
-	String response = restTemplate.getForObject(link, String.class);
+	    RestTemplate restTemplate = new RestTemplate();
+	    HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+	    restTemplate.setRequestFactory(requestFactory);
 
-	String[] split = StringUtils.splitByWholeSeparator(response, EXTERNAL_REQNO);
-	List<List<Object>> writeRowList = new ArrayList<List<Object>>();
-	for (int i = 1; i < split.length; i++) {
-	    writeRowList.add(parseSplitOpening(split[i]));
+	    String response = restTemplate.getForObject(link, String.class);
+
+	    String[] split = StringUtils.splitByWholeSeparator(response, EXTERNAL_REQNO);
+	    List<List<Object>> writeRowList = new ArrayList<List<Object>>();
+	    for (int i = 1; i < split.length; i++) {
+		writeRowList.add(parseSplitOpening(split[i]));
+	    }
+
+	    // clear sheet
+	    clearSheet(sheetId, CLEAR_RANGE);
+
+	    // write sheet
+	    ValueRange body = new ValueRange();
+	    body.setValues(writeRowList);
+	    writeSheet(sheetId, RANGE, body);
+
+	    Authenticator.setDefault(null);
+
+	    openingRest.setLastCheckedNow(AMALGAM);
+	} else {
+	    openingRest.setLastCheckedDisabled(AMALGAM);
 	}
-
-	// clear sheet
-	clearSheet(sheetId, CLEAR_RANGE);
-
-	// write sheet
-	ValueRange body = new ValueRange();
-	body.setValues(writeRowList);
-	writeSheet(sheetId, RANGE, body);
-
-	Authenticator.setDefault(null);
-
-	openingRest.setLastCheckedNow(AMALGAM);
     }
 
     private List<Object> parseSplitOpening(String split) {

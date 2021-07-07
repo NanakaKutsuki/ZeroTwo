@@ -61,35 +61,39 @@ public class ImagineDragonRest extends AbstractSheets {
 
     @Scheduled(cron = "0 9 6 * * *")
     public void parseEmail() {
-	try {
-	    Properties properties = new Properties();
-	    properties.put(POP3_HOST, host);
-	    properties.put(POP3_PORT, port);
-	    properties.put(POP3_START_TTLS, Boolean.TRUE.toString());
-	    Session emailSession = Session.getDefaultInstance(properties);
+	Account account = accountRepository.findByProject(IMAGINE_DRAGON);
 
-	    Store store = emailSession.getStore(POP3S);
+	if (account.isActive()) {
+	    try {
+		Properties properties = new Properties();
+		properties.put(POP3_HOST, host);
+		properties.put(POP3_PORT, port);
+		properties.put(POP3_START_TTLS, Boolean.TRUE.toString());
+		Session emailSession = Session.getDefaultInstance(properties);
 
-	    Account account = accountRepository.findByProject(IMAGINE_DRAGON);
-	    store.connect(host, account.getUsername(), account.getPassword());
+		Store store = emailSession.getStore(POP3S);
+		store.connect(host, account.getUsername(), account.getPassword());
 
-	    Folder emailFolder = store.getFolder(INBOX);
-	    emailFolder.open(Folder.READ_ONLY);
+		Folder emailFolder = store.getFolder(INBOX);
+		emailFolder.open(Folder.READ_ONLY);
 
-	    Message[] messages = emailFolder.getMessages();
+		Message[] messages = emailFolder.getMessages();
 
-	    boolean found = false;
-	    int i = messages.length - 1;
-	    while (i >= 0 && !found) {
-		found = parseMessage(messages[i]);
-		i--;
+		boolean found = false;
+		int i = messages.length - 1;
+		while (i >= 0 && !found) {
+		    found = parseMessage(messages[i]);
+		    i--;
+		}
+
+		// close email
+		emailFolder.close(false);
+		store.close();
+	    } catch (MessagingException | IOException e) {
+		getEmailService().emailException("Error parsing ImagineDragon!", e);
 	    }
-
-	    // close email
-	    emailFolder.close(false);
-	    store.close();
-	} catch (MessagingException | IOException e) {
-	    getEmailService().emailException("Error parsing ImagineDragon!", e);
+	} else {
+	    openingRest.setLastCheckedDisabled(IMAGINE_DRAGON);
 	}
     }
 

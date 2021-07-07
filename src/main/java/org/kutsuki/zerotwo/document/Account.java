@@ -7,6 +7,7 @@ public class Account extends AbstractDocument {
     private String project;
     private String username;
     private String password;
+    private boolean active;
 
     public String getProject() {
 	return project;
@@ -30,5 +31,13 @@ public class Account extends AbstractDocument {
 
     public void setPassword(String password) {
 	this.password = password;
+    }
+
+    public boolean isActive() {
+	return active;
+    }
+
+    public void setActive(boolean active) {
+	this.active = active;
     }
 }
