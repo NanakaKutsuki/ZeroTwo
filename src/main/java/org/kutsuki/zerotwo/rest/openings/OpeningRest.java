@@ -18,7 +18,7 @@ public class OpeningRest extends AbstractSheets {
     private static final String CLEAR_RANGE = "LastChecked!A2:B";
     private static final String RANGE = "LastChecked!A2";
     private static final String DISABLED = "Disabled";
-    private static final String THIS_LAST_CHECKED = "(THIS) Last Checked";
+    private static final String THIS_LAST_CHECKED = "(THIS) Last Updated";
 
     @Autowired
     private OpeningRepository repository;
